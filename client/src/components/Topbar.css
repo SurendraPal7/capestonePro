@@ -1,0 +1,106 @@
+/* client/src/components/Topbar.css */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 2rem;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    width: 400px;
+    gap: 0.8rem;
+}
+
+.search-icon {
+    color: #999;
+}
+
+.topbar-search-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+}
+
+.topbar-icons {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #4a4a4a;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-dot {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 8px;
+    height: 8px;
+    background: #00d26a;
+    border-radius: 50%;
+    border: 1px solid #fff;
+}
+
+.badge-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: #00d26a;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-left: 1px solid #e0e0e0;
+    padding-left: 1.5rem;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.user-role {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.user-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}

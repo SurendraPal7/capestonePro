@@ -1,0 +1,36 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  server:
+    build: ./server
+    container_name: mern_server
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/farmer-marketplace
+      - JWT_SECRET=thisisasecretkey
+    depends_on:
+      - mongo
+    volumes:
+      - ./server/uploads:/app/uploads
+
+  client:
+    build: ./client
+    container_name: mern_client
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - server
+
+volumes:
+  mongodb_data:
