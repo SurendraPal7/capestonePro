@@ -1,158 +1,147 @@
-# Farmer-to-Buyer Marketplace
+# 🚜 Farmer-to-Buyer Marketplace
 
-## Project Overview
+[![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Vite](https://img.shields.io/badge/Build%20Tool-Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Docker](https://img.shields.io/badge/Deployment-Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
-The **Farmer-to-Buyer Marketplace** is a web-based platform designed to connect farmers directly with buyers, such as restaurant owners, hotel managers, and other bulk purchasers. By eliminating intermediaries, the platform ensures that farmers get better prices for their produce while buyers receive fresh, high-quality agricultural products directly from the source.
+A robust, full-stack marketplace connecting local farmers directly with bulk buyers, streamlining the agricultural supply chain and ensuring fair value for producers.
 
-The application features a dual-role system where users can register as either a **Farmer (Seller)** or a **Buyer**. Farmers can list their produce with images and prices, while buyers can browse the marketplace, add items to their cart, and place orders.
+---
 
-## Key Features
+## 🚀 Problem Statement
 
--   **User Roles**:
-    -   **Farmer**: Can list products (fruits, vegetables, etc.), manage inventory, and view incoming orders.
-    -   **Buyer**: Can browse the marketplace, search for products, add items to a cart, and place orders.
--   **Authentication**: Secure login and registration system with role-based access control.
--   **Marketplace**: A visual display of available products with details enabling easy browsing.
--   **Product Management**: Farmers can upload product images and details.
--   **Order Management**:
-    -   Buyers can track their order history.
-    -   Farmers can view and manage orders received for their products.
--   **Dashboard**: Personalized dashboards for both Farmers and Buyers to manage their respective activities.
+In the traditional agricultural supply chain, farmers often face significant systemic challenges:
+- **Low Profit Margins:** Multiple layers of intermediaries (brokers, distributors, and wholesalers) take a significant share of the final price, leaving farmers with minimal profits.
+- **Lack of Price Transparency:** Without direct contact with buyers, farmers are often forced to sell at prices dictated by middlemen.
+- **Product Freshness & Wastage:** Extended supply chains and multiple handling stages lead to increased wastage and reduced quality of perishable goods by the time they reach the buyer.
+- **Market Access Barriers:** Small-scale farmers often find it impossible to reach large-scale buyers such as restaurants, hotels, or grocery chains without expensive brokerage.
 
-## Tech Stack
+**Farmer-to-Buyer Marketplace** provides a digital bridge that eliminates these intermediaries. By enabling direct communication and transaction between the producer and the purchaser, we ensure farmers get higher returns while buyers receive fresher products at competitive prices.
 
-The project is built using the **MERN Stack** (MongoDB, Express.js, React, Node.js).
+---
 
-### Client-Side (Frontend)
--   **React**: UI library for building the user interface.
--   **Vite**: Build tool for faster development and optimized production builds.
--   **React Router DOM**: For handling navigation and routing.
--   **Axios**: For making HTTP requests to the backend API.
--   **CSS / CSS Modules**: For styling components and pages.
+## 🛠️ Tech Stack
 
-### Server-Side (Backend)
--   **Node.js**: Runtime environment for executing JavaScript on the server.
--   **Express.js**: Web framework for building the API.
--   **MongoDB**: NoSQL database for storing user, product, and order data.
--   **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
--   **JWT (JSON Web Tokens)**: For secure user authentication.
--   **Bcryptjs**: For password hashing.
--   **Multer**: For handling file uploads (product images).
--   **Dotenv**: For managing environment variables.
--   **Nodemon**: For automatic server restarts during development.
+### Frontend (Client-Side)
+- **React.js (Vite):** Utilized for building a high-performance, component-based user interface.
+- **React Router DOM:** Handles seamless client-side navigation and role-based routing.
+- **Recharts:** Integrated dynamic data visualization for real-time sales and revenue analytics.
+- **Axios:** Managed efficient, asynchronous API communication with the backend.
+- **React Icons:** Provided a modern and intuitive visual language for the UI.
+- **Context API:** Centralized state management for Authentication and Shopping Cart.
 
-## Prerequisites
+### Backend (Server-Side)
+- **Node.js & Express.js:** Powered a scalable RESTful API architecture designed for high throughput.
+- **JWT (JSON Web Tokens):** Implemented secure, stateless session management.
+- **Bcrypt.js:** Utilized for industry-standard password hashing and data security.
+- **Multer:** Optimized handling of multi-part form data for product image uploads.
 
-Before running the project, ensure you have the following installed:
--   **Node.js** (v14 or higher)
--   **npm** (Node Package Manager)
--   **MongoDB** (Local instance or Atlas connection string)
+### Database & Storage
+- **MongoDB:** Leveraged a NoSQL database for flexible and scalable agricultural data modeling.
+- **Mongoose:** Employs a schema-based solution to model application data and handle relationships.
 
-## Installation and Workflow
+---
 
-Follow these steps to set up and run the project locally.
+## ✨ Key Features
 
-### 1. Clone the Repository
+### 👨‍🌾 For Farmers (Sellers)
+- **Direct Listing:** Upload and manage agricultural produce with images, specific units, and real-time pricing.
+- **Advanced Sales Analytics:** Monitor performance through interactive Area Charts, filtering data from 1 month up to 5 years of history.
+- **Earnings Tracking:** A dedicated dashboard to view total revenue, order volume, and business growth trends.
+- **Order Management:** Streamlined interface to track incoming orders and fulfill buyer requests.
 
+### 🛒 For Buyers
+- **Live Marketplace:** A visually rich interface to browse fresh produce from verified local farmers.
+- **Dynamic Shopping Cart:** Seamlessly add products, adjust quantities, and manage potential orders.
+- **Transparent Checkout:** Direct ordering system with clear pricing and order confirmation.
+- **Order History:** Comprehensive tracking of all past and current purchases.
+
+### 🔐 Security & Core Logistics
+- **Role-Based Access Control (RBAC):** Complete separation of Farmer and Buyer workflows and permissions.
+- **Secure Authentication:** Robust login/registration system with encrypted credentials.
+- **Mobile-Responsive UI:** Fully optimized experience across mobile devices, tablets, and desktops.
+
+---
+
+## 📦 Project Structure
+
+```text
+capestonePro/
+├── client/                 # React Frontend (Vite)
+│   ├── src/
+│   │   ├── components/     # Reusable UI components & Layouts
+│   │   ├── context/        # Auth & Cart Global State
+│   │   ├── pages/          # Main application views (Analytics, Marketplace, etc.)
+│   │   └── App.jsx         # Application routing and structure
+├── server/                 # Express Backend
+│   ├── models/             # Mongoose Schemas (User, Product, Order)
+│   ├── routes/             # RESTful API Endpoints
+│   ├── controllers/        # Business logic & Route handlers
+│   ├── middleware/         # Security & Upload middlewares
+│   └── uploads/            # Static storage for product images
+├── docker-compose.yml     # Container orchestration for easy deployment
+└── README.md               # Project documentation
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1. Prerequisites
+- **Node.js** (v18.0 or higher recommended)
+- **MongoDB** (Local instance or MongoDB Atlas)
+- **Git**
+
+### 2. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/your-username/capestonePro.git
 cd capestonePro
 ```
 
-### 2. Backend Setup (Server)
-
+### 3. Backend Configuration
 Navigate to the `server` directory and install dependencies:
-
 ```bash
 cd server
 npm install
 ```
-
-Create a `.env` file in the `server` directory with the following variables:
-
+Create a `.env` file in the `server` root:
 ```env
-NODE_ENV=development
 PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/farmer-marketplace
-JWT_SECRET=your_jwt_secret_key_here
+MONGO_URI=mongodb://your_connection_string
+JWT_SECRET=your_secret_key
 ```
-
-Start the backend server:
-
+Start the server:
 ```bash
-npm start
-# OR for development with auto-restart:
 npm run dev
 ```
 
-The server should now be running on `http://localhost:5000`.
-
-### 3. Frontend Setup (Client)
-
-Open a new terminal, navigate to the `client` directory, and install dependencies:
-
+### 4. Frontend Configuration
+Navigate to the `client` directory and install dependencies:
 ```bash
 cd client
 npm install
 ```
-
-Start the frontend development server:
-
+Start the development server:
 ```bash
 npm run dev
 ```
 
-The application will typically run on `http://localhost:5173` (check the terminal output for the exact URL).
+---
 
-## Project Structure
-
+## 🐳 Docker Deployment
+You can also run the entire stack using Docker:
+```bash
+docker-compose up --build
 ```
-capestonePro/
-├── client/                 # Frontend React Application
-│   ├── public/             
-│   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── context/        # React Context (Auth, Cart, etc.)
-│   │   ├── pages/          # Application pages (Home, Login, Marketplace, etc.)
-│   │   ├── App.jsx         # Main application component
-│   │   └── main.jsx        # Entry point
-│   ├── package.json        # Client dependencies and scripts
-│   └── vite.config.js      # Vite configuration
-│
-├── server/                 # Backend Node.js/Express Application
-│   ├── config/             # Database configuration
-│   ├── controllers/        # Route logic and handlers
-│   ├── middleware/         # Custom middleware (Auth, Error handling)
-│   ├── models/             # Mongoose schemas (User, Product, Order)
-│   ├── routes/             # API routes
-│   ├── uploads/            # Directory for uploaded images
-│   ├── index.js            # Server entry point
-│   └── package.json        # Server dependencies and scripts
-│
-└── README.md               # Project documentation
-```
-
-## API Endpoints
-
--   **Auth**:
-    -   `POST /api/auth/register`: Register a new user.
-    -   `POST /api/auth/login`: Login user.
-    -   `GET /api/auth/me`: Get current user profile.
--   **Products**:
-    -   `GET /api/products`: Get all products.
-    -   `POST /api/products`: Add a new product (Farmer only).
--   **Orders**:
-    -   `POST /api/orders`: Place a new order.
-    -   `GET /api/orders/myorders`: Get orders for the logged-in user.
--   **Upload**:
-    -   `POST /api/upload`: Upload an image file.
-
-## Troubleshooting
-
--   **Database Connection Error**: Ensure your local MongoDB instance is running or your `MONGO_URI` is correct.
--   **CORS Issues**: If the frontend cannot communicate with the backend, ensure `cors` is enabled in `server/index.js`.
--   **Image Displays**: Images are served statically from the `server/uploads` folder. Ensure this folder exists and permissions are set correctly.
 
 ---
 
-This project was developed as a Capstone Project demonstrating full-stack web development capabilities.
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+### Developed as a Capstone Project to revolutionize agricultural supply chains.
+
