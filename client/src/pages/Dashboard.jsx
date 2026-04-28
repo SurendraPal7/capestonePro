@@ -193,11 +193,7 @@ const Dashboard = () => {
     return (
         <div className='container dashboard'>
             {user.role === 'buyer' && (
-                <div className='dashboard-layout'>
-                    <Sidebar />
-                    <div className='main-content'>
-                        <Topbar />
-                        <div className='dashboard-container'>
+                <div className='dashboard-container'>
                             <div className='dash-hero'>
                                 <span className='tag-season'>Harvest Season 2024</span>
                                 <h1>Direct from Farm to Your Table</h1>
@@ -347,8 +343,6 @@ const Dashboard = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
             )}
         </div>
     );

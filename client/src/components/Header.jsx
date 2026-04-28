@@ -2,10 +2,12 @@ import { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaSignOutAlt, FaBars, FaTimes, FaShoppingBasket, FaLeaf } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
+import CartContext from '../context/CartContext';
 import './Header.css';
 
 const Header = () => {
     const { user, logout } = useContext(AuthContext);
+    const { cartItems } = useContext(CartContext);
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -41,6 +43,12 @@ const Header = () => {
                                     <>
                                         <Link to='/marketplace' className='nav-link' onClick={() => setIsOpen(false)}>Marketplace</Link>
                                         <Link to='/orders' className='nav-link' onClick={() => setIsOpen(false)}>Orders</Link>
+                                        <Link to='/cart' className='nav-link cart-link' onClick={() => setIsOpen(false)}>
+                                            <FaShoppingBasket /> Cart
+                                            {cartItems.length > 0 && (
+                                                <span className='cart-badge'>{cartItems.reduce((acc, item) => acc + item.qty, 0)}</span>
+                                            )}
+                                        </Link>
                                     </>
                                 )}
                                 <button className='btn btn-outline btn-logout' onClick={onLogout}>
