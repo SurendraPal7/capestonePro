@@ -1,16 +1,78 @@
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
+import CartContext from '../context/CartContext';
 import ProductForm from '../components/ProductForm';
-import { FaEdit, FaTrash, FaBox, FaSearch, FaAngleRight, FaAngleLeft, FaStar, FaShoppingCart, FaHeart, FaChevronDown } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaBox, FaSearch, FaAngleRight, FaAngleLeft, FaStar, FaShoppingCart, FaHeart, FaChevronDown, FaPlus, FaMinus } from 'react-icons/fa';
 import Topbar from '../components/Topbar';
 import Sidebar from '../components/Sidebar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Dashboard.css';
 
+const DashboardProductCard = ({ product, onAddToCart }) => {
+    const [qty, setQty] = useState(1);
+    const [showQty, setShowQty] = useState(false);
+
+    return (
+        <div className='product-card'>
+            <div className='product-image-placeholder'>
+                {product.quantity > 0 ? (
+                    <span className='stock-badge'>IN STOCK</span>
+                ) : (
+                    <span className='stock-badge' style={{background:'#ef4444', color:'white'}}>OUT OF STOCK</span>
+                )}
+                <button className='heart-btn'><FaHeart /></button>
+                {product.images && product.images.length > 0 ? (
+                    <img src={product.images[0]} alt={product.name} className='product-image' />
+                ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: '#9ca3af' }}>
+                        <FaBox />
+                    </div>
+                )}
+            </div>
+            <div className='product-info'>
+                <div className='cat-tag'>{product.category?.toUpperCase() || 'GENERAL'}</div>
+                <h3>{product.name}</h3>
+                <p className='farm-name'>{product.farmer?.farmName || product.farmer?.name || 'Local Farm'}</p>
+                <div className='price-row'>
+                    <div>
+                        <span className='price'>₹{product.price}</span> <span className='unit'>/ {product.unit}</span>
+                    </div>
+                    {!showQty ? (
+                        <button 
+                            className='add-btn' 
+                            onClick={() => setShowQty(true)}
+                            disabled={product.quantity <= 0}
+                        >
+                            <FaShoppingCart />
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '20px', padding: '2px' }}>
+                            <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaMinus size={10} /></button>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{qty}</span>
+                            <button onClick={() => setQty(Math.min(product.quantity, qty + 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaPlus size={10} /></button>
+                            <button 
+                                className='add-btn' 
+                                onClick={() => { onAddToCart(product, qty); setShowQty(false); setQty(1); }}
+                                style={{ width: '28px', height: '28px', marginLeft: '5px' }}
+                            >
+                                <FaShoppingCart size={12} />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Dashboard = () => {
     const { user, loading } = useContext(AuthContext);
+    const { addToCart } = useContext(CartContext);
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
+    const [farmers, setFarmers] = useState([]);
     const [orders, setOrders] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -31,6 +93,12 @@ const Dashboard = () => {
                 } else {
                     const orderRes = await axios.get('/api/orders/myorders', config);
                     setOrders(orderRes.data);
+
+                    const prodRes = await axios.get('/api/products');
+                    setProducts(prodRes.data.products || []);
+
+                    const farmerRes = await axios.get('/api/auth/farmers');
+                    setFarmers(farmerRes.data || []);
                 }
             } catch (error) {
                 console.error('Error fetching data', error);
@@ -41,6 +109,11 @@ const Dashboard = () => {
         const interval = setInterval(fetchData, 10000); // Poll every 10 seconds
         return () => clearInterval(interval);
     }, [user]);
+
+    const handleAddToCart = (product, qty = 1) => {
+        addToCart(product, qty);
+        alert(`Added ${qty} ${product.unit || 'item'} of ${product.name} to cart!`);
+    };
 
     const handleProductAdded = () => {
         setShowForm(false);
@@ -239,63 +312,9 @@ const Dashboard = () => {
                                     </div>
                                     
                                     <div className='products-grid-3'>
-                                        {/* Demo static products for mockup accuracy */}
-                                        <div className='product-card'>
-                                            <div className='product-image-placeholder'>
-                                                <span className='stock-badge'>IN STOCK</span>
-                                                <button className='heart-btn'><FaHeart /></button>
-                                                <img src='https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500&q=80' alt='Strawberries' className='product-image' />
-                                            </div>
-                                            <div className='product-info'>
-                                                <div className='cat-tag'>ORGANIC FRESH</div>
-                                                <h3>Premium Red Strawberries</h3>
-                                                <p className='farm-name'>Green Valley Estate</p>
-                                                <div className='price-row'>
-                                                    <div>
-                                                        <span className='price'>$4.50</span> <span className='unit'>/ lb</span>
-                                                    </div>
-                                                    <button className='add-btn'><FaShoppingCart /></button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className='product-card'>
-                                            <div className='product-image-placeholder'>
-                                                <span className='stock-badge' style={{background:'#f3f4f6'}}>FEATURED</span>
-                                                <button className='heart-btn'><FaHeart /></button>
-                                                <img src='https://images.unsplash.com/photo-1627993077651-40efab76ea39?w=500&q=80' alt='Kale' className='product-image' />
-                                            </div>
-                                            <div className='product-info'>
-                                                <div className='cat-tag' style={{color:'#0ea5e9'}}>HYDROPONIC</div>
-                                                <h3>Fresh Curly Kale</h3>
-                                                <p className='farm-name'>Sky Farms Hydroponics</p>
-                                                <div className='price-row'>
-                                                    <div>
-                                                        <span className='price'>$2.99</span> <span className='unit'>/ bunch</span>
-                                                    </div>
-                                                    <button className='add-btn'><FaShoppingCart /></button>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className='product-card'>
-                                            <div className='product-image-placeholder'>
-                                                <span className='stock-badge' style={{background:'#f97316', color:'white'}}>SALE -20%</span>
-                                                <button className='heart-btn'><FaHeart /></button>
-                                                <img src='https://images.unsplash.com/photo-1587049352847-4d4b1ed748d5?w=500&q=80' alt='Honey' className='product-image' />
-                                            </div>
-                                            <div className='product-info'>
-                                                <div className='cat-tag'>ARTISANAL</div>
-                                                <h3>Pure Wildflower Honey</h3>
-                                                <p className='farm-name'>BeeKind Apiaries</p>
-                                                <div className='price-row'>
-                                                    <div>
-                                                        <span className='price'>$12.00</span> <span className='unit'>/ 500g</span>
-                                                    </div>
-                                                    <button className='add-btn'><FaShoppingCart /></button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {products.slice(0, 3).map((product) => (
+                                            <DashboardProductCard key={product._id} product={product} onAddToCart={handleAddToCart} />
+                                        ))}
                                     </div>
                                 </div>
 
@@ -304,41 +323,31 @@ const Dashboard = () => {
                                         <h3>Featured Farms</h3>
                                     </div>
                                     <div className='farms-list'>
-                                        <div className='farm-card'>
-                                            <div className='farm-image'>
-                                                <img src='https://images.unsplash.com/photo-1595844730298-b960fad97aa5?w=500&q=80' alt='Farm' />
-                                                <div className='farm-logo-sm'>SO</div>
-                                            </div>
-                                            <div className='farm-info'>
-                                                <h4>Sunny Side Organics</h4>
-                                                <div className='rating'>
-                                                    <span className='stars'>
-                                                        <FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star' style={{color:'#e0e0e0'}}/>
-                                                    </span>
-                                                    4.2 (128 reviews)
+                                        {farmers.slice(0, 2).map((farmer) => (
+                                            <div className='farm-card' key={farmer._id}>
+                                                <div className='farm-image'>
+                                                    {farmer.farmImage ? (
+                                                        <img src={farmer.farmImage} alt={farmer.farmName || farmer.name} />
+                                                    ) : (
+                                                        <div style={{ width: '100%', height: '100%', background: '#dcfce7' }}></div>
+                                                    )}
+                                                    <div className='farm-logo-sm' style={{ background: farmer.farmImage ? '#4a5d23' : '#1e3a8a' }}>
+                                                        {farmer.farmName ? farmer.farmName.substring(0, 2).toUpperCase() : (farmer.name ? farmer.name.substring(0, 2).toUpperCase() : 'FF')}
+                                                    </div>
                                                 </div>
-                                                <p>Specializing in heirloom tomatoes and root vegetables grown without synthetic...</p>
-                                                <button className='btn btn-outline-primary btn-full' style={{borderRadius:'20px'}}>Visit Shop</button>
-                                            </div>
-                                        </div>
-
-                                        <div className='farm-card'>
-                                            <div className='farm-image'>
-                                                <img src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80' alt='Dairy' />
-                                                <div className='farm-logo-sm' style={{background:'#1e3a8a'}}>RD</div>
-                                            </div>
-                                            <div className='farm-info'>
-                                                <h4>River Valley Dairy</h4>
-                                                <div className='rating'>
-                                                    <span className='stars'>
-                                                        <FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star'/>
-                                                    </span>
-                                                    4.9 (512 reviews)
+                                                <div className='farm-info'>
+                                                    <h4>{farmer.farmName || farmer.name}</h4>
+                                                    <div className='rating'>
+                                                        <span className='stars'>
+                                                            <FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star' style={{color:'#e0e0e0'}}/>
+                                                        </span>
+                                                        4.5 (Reviews)
+                                                    </div>
+                                                    <p>{farmer.location?.address?.substring(0, 60) || 'Local organic community farm. Committed to sustainable and fresh harvests every season.'}...</p>
+                                                    <button className='btn btn-outline-primary btn-full' style={{borderRadius:'20px'}} onClick={() => navigate('/marketplace?farmerId=' + farmer._id)}>Visit Shop</button>
                                                 </div>
-                                                <p>Award-winning artisan cheeses and fresh grass-fed milk delivered daily.</p>
-                                                <button className='btn btn-outline-primary btn-full' style={{borderRadius:'20px'}}>Visit Shop</button>
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
