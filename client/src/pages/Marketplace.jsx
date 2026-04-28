@@ -2,109 +2,63 @@ import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CartContext from '../context/CartContext';
-import { FaShoppingCart, FaSearch, FaFilter, FaMinus, FaPlus, FaAngleLeft, FaAngleRight, FaHeart, FaStar } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaFilter, FaMinus, FaPlus, FaAngleLeft, FaAngleRight, FaHeart, FaStar, FaBox } from 'react-icons/fa';
 import './Marketplace.css';
 import './Dashboard.css'; // Leverage the existing responsive layout CSS from Dashboard
 
 const ProductItem = ({ product, onAddToCart }) => {
     const [qty, setQty] = useState(1);
-    const [isExpanded, setIsExpanded] = useState(false);
-
-    const handleQtyChange = (e) => {
-        let value = parseInt(e.target.value);
-        if (value < 1) value = 1;
-        if (value > product.quantity) value = product.quantity;
-        setQty(value);
-    };
+    const [showQty, setShowQty] = useState(false);
 
     return (
-        <div className='card product-card'>
+        <div className='product-card'>
             <div className='product-image-placeholder'>
-                {/* Placeholder generic image if no image provided or use abstract css pattern */}
+                {product.quantity > 0 ? (
+                    <span className='stock-badge'>IN STOCK</span>
+                ) : (
+                    <span className='stock-badge' style={{background:'#ef4444', color:'white'}}>OUT OF STOCK</span>
+                )}
+                <button className='heart-btn'><FaHeart /></button>
                 {product.images && product.images.length > 0 ? (
                     <img src={product.images[0]} alt={product.name} className='product-image' />
                 ) : (
-                    <span>{product.category}</span>
-                )}
-            </div>
-            <div className='product-content'>
-                <h3>{product.name}</h3>
-                <p className='farm-name'>By {product.farmer?.name || 'Local Farmer'}</p>
-                <p className='price-tag'>₹{product.price} / {product.unit}</p>
-                <p className='stock'>Stock: {product.quantity} {product.unit}</p>
-                <p className='location'>{product.location?.address || product.location || 'Unknown Location'}</p>
-
-                {product.quantity > 0 && (
-                    <div className='qty-selector'>
-                        <label>Buy ({product.unit}):</label>
-                        {!isExpanded ? (
-                            <button
-                                className='qty-btn-circle-add'
-                                onClick={() => setIsExpanded(true)}
-                                aria-label="Start adding to cart"
-                            >
-                                <FaPlus />
-                            </button>
-                        ) : (
-                            <div className='qty-stepper slide-in'>
-                                <button
-                                    className='qty-btn'
-                                    onClick={() => {
-                                        if (qty > 1) {
-                                            setQty(prev => prev - 1);
-                                        } else {
-                                            setIsExpanded(false);
-                                            setQty(1); // Reset for next time
-                                        }
-                                    }}
-                                >
-                                    <FaMinus />
-                                </button>
-                                <input
-                                    type='number'
-                                    className='qty-display'
-                                    value={qty}
-                                    min='1'
-                                    max={product.quantity}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val === '') {
-                                            setQty('');
-                                        } else {
-                                            let num = parseInt(val);
-                                            if (num > product.quantity) num = product.quantity;
-                                            setQty(num);
-                                        }
-                                    }}
-                                    onBlur={() => {
-                                        let num = parseInt(qty);
-                                        if (!num || num < 1) setQty(1);
-                                    }}
-                                />
-                                <button
-                                    className='qty-btn'
-                                    onClick={() => setQty(prev => Math.min(product.quantity, (parseInt(prev) || 0) + 1))}
-                                >
-                                    <FaPlus />
-                                </button>
-                            </div>
-                        )}
+                    <div style={{ width: '100%', height: '100%', background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', color: '#9ca3af' }}>
+                        <FaBox />
                     </div>
                 )}
-
-                {product.quantity > 0 && (
-                    <p className='total-price-preview'>
-                        Total: <strong>₹{product.price * qty}</strong>
-                    </p>
-                )}
-
-                <button
-                    className='btn btn-primary btn-full'
-                    onClick={() => onAddToCart(product, qty)}
-                    disabled={product.quantity <= 0}
-                >
-                    {product.quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
-                </button>
+            </div>
+            <div className='product-info'>
+                <div className='cat-tag'>{product.category?.toUpperCase() || 'GENERAL'}</div>
+                <h3>{product.name}</h3>
+                <p className='farm-name'>{product.farmer?.farmName || product.farmer?.name || 'Local Farm'}</p>
+                <p className='stock' style={{fontSize: '0.8rem', color: '#666', marginBottom: '0.5rem', marginTop: '-0.2rem'}}>Stock: {product.quantity} {product.unit}</p>
+                <div className='price-row'>
+                    <div>
+                        <span className='price'>₹{product.price}</span> <span className='unit'>/ {product.unit}</span>
+                    </div>
+                    {!showQty ? (
+                        <button 
+                            className='add-btn' 
+                            onClick={() => setShowQty(true)}
+                            disabled={product.quantity <= 0}
+                        >
+                            <FaShoppingCart />
+                        </button>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '20px', padding: '2px' }}>
+                            <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaMinus size={10} /></button>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{qty}</span>
+                            <button onClick={() => setQty(Math.min(product.quantity, qty + 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaPlus size={10} /></button>
+                            <button 
+                                className='add-btn' 
+                                onClick={() => { onAddToCart(product, qty); setShowQty(false); setQty(1); }}
+                                style={{ width: '28px', height: '28px', marginLeft: '5px' }}
+                            >
+                                <FaShoppingCart size={12} />
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

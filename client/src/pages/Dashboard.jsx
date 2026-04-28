@@ -35,6 +35,7 @@ const DashboardProductCard = ({ product, onAddToCart }) => {
                 <div className='cat-tag'>{product.category?.toUpperCase() || 'GENERAL'}</div>
                 <h3>{product.name}</h3>
                 <p className='farm-name'>{product.farmer?.farmName || product.farmer?.name || 'Local Farm'}</p>
+                <p className='stock' style={{fontSize: '0.8rem', color: '#666', marginBottom: '0.5rem', marginTop: '-0.2rem'}}>Stock: {product.quantity} {product.unit}</p>
                 <div className='price-row'>
                     <div>
                         <span className='price'>₹{product.price}</span> <span className='unit'>/ {product.unit}</span>
