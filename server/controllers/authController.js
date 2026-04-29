@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import asyncHandler from 'express-async-handler';
+import User from '../models/User.js';
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -12,7 +12,7 @@ const generateToken = (id) => {
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password, role, phone, location, farmName, businessName, farmImage } = req.body;
 
     if (!name || !email || !password || !role || !phone) {
@@ -56,7 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // @desc    Authenticate a user
 // @route   POST /api/auth/login
 // @access  Public
-const loginUser = asyncHandler(async (req, res) => {
+export const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
@@ -78,14 +78,14 @@ const loginUser = asyncHandler(async (req, res) => {
 // @desc    Get user data
 // @route   GET /api/auth/me
 // @access  Private
-const getMe = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
     res.status(200).json(req.user);
 });
 
 // @desc    Get all farmers
 // @route   GET /api/auth/farmers
 // @access  Public
-const getFarmers = asyncHandler(async (req, res) => {
+export const getFarmers = asyncHandler(async (req, res) => {
     // Return all users with role 'farmer', limit to a few for 'Featured'
     const farmers = await User.find({ role: 'farmer' })
         .select('name farmName farmImage location')
@@ -96,7 +96,7 @@ const getFarmers = asyncHandler(async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
-const updateUserProfile = asyncHandler(async (req, res) => {
+export const updateUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
@@ -129,11 +129,3 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         throw new Error('User not found');
     }
 });
-
-module.exports = {
-    registerUser,
-    loginUser,
-    getMe,
-    getFarmers,
-    updateUserProfile,
-};

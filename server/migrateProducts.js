@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const Product = require('./models/Product');
-const connectDB = require('./config/db');
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import Product from './models/Product.js';
+import connectDB from './config/db.js';
 
 dotenv.config();
 connectDB();

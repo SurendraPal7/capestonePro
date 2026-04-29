@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
     addOrderItems,
     getOrderById,
     updateOrderToPaid,
     updateOrderStatus,
     getMyOrders,
     getFarmerOrders,
-} = require('../controllers/orderController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/orderController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.route('/').post(protect, addOrderItems);
 router.route('/myorders').get(protect, getMyOrders);
@@ -17,4 +17,4 @@ router.route('/:id').get(protect, getOrderById);
 router.route('/:id/pay').put(protect, updateOrderToPaid);
 router.route('/:id/status').put(protect, updateOrderStatus);
 
-module.exports = router;
+export default router;

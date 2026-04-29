@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
     getProducts,
     getProductById,
     createProduct,
     updateProduct,
     deleteProduct,
     getMyProducts,
-} = require('../controllers/productController');
-const { protect } = require('../middleware/authMiddleware');
+} from '../controllers/productController.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 router.route('/').get(getProducts).post(protect, createProduct);
 router.route('/myproducts').get(protect, getMyProducts);
@@ -18,4 +18,4 @@ router
     .put(protect, updateProduct)
     .delete(protect, deleteProduct);
 
-module.exports = router;
+export default router;

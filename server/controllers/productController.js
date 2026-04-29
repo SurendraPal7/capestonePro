@@ -1,10 +1,10 @@
-const asyncHandler = require('express-async-handler');
-const Product = require('../models/Product');
+import asyncHandler from 'express-async-handler';
+import Product from '../models/Product.js';
 
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
-const getProducts = asyncHandler(async (req, res) => {
+export const getProducts = asyncHandler(async (req, res) => {
     const pageSize = 10;
     const page = Number(req.query.pageNumber) || 1;
 
@@ -47,7 +47,7 @@ const getProducts = asyncHandler(async (req, res) => {
 // @desc    Get product by ID
 // @route   GET /api/products/:id
 // @access  Public
-const getProductById = asyncHandler(async (req, res) => {
+export const getProductById = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id).populate('farmer', 'name farmName email phone');
 
     if (product) {
@@ -61,7 +61,7 @@ const getProductById = asyncHandler(async (req, res) => {
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Farmer
-const createProduct = asyncHandler(async (req, res) => {
+export const createProduct = asyncHandler(async (req, res) => {
     const { name, category, quantity, unit, price, description, images, location, latitude, longitude, availabilityDate } = req.body;
 
     const locationData = {
@@ -90,7 +90,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // @desc    Update a product
 // @route   PUT /api/products/:id
 // @access  Private/Farmer
-const updateProduct = asyncHandler(async (req, res) => {
+export const updateProduct = asyncHandler(async (req, res) => {
     const { name, category, quantity, unit, price, description, images, location, availabilityDate } = req.body;
 
     const product = await Product.findById(req.params.id);
@@ -130,7 +130,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // @desc    Delete a product
 // @route   DELETE /api/products/:id
 // @access  Private/Farmer
-const deleteProduct = asyncHandler(async (req, res) => {
+export const deleteProduct = asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
@@ -150,16 +150,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 // @desc    Get products by farmer
 // @route   GET /api/products/myproducts
 // @access  Private/Farmer
-const getMyProducts = asyncHandler(async (req, res) => {
+export const getMyProducts = asyncHandler(async (req, res) => {
     const products = await Product.find({ farmer: req.user._id });
     res.json(products);
 });
-
-module.exports = {
-    getProducts,
-    getProductById,
-    createProduct,
-    updateProduct,
-    deleteProduct,
-    getMyProducts,
-};
