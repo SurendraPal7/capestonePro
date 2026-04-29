@@ -139,8 +139,8 @@ const Settings = () => {
                                         const uploadData = new FormData();
                                         uploadData.append('image', file);
                                         try {
-                                            const { data } = await axios.post('http://localhost:5000/api/upload', uploadData);
-                                            setFormData(prev => ({ ...prev, farmImage: `http://localhost:5000${data.image}` }));
+                                            const { data } = await axios.post('/api/upload', uploadData);
+                                            setFormData(prev => ({ ...prev, farmImage: `${axios.defaults.baseURL}${data.image}` }));
                                         } catch (err) {
                                             console.error(err);
                                             alert('Image upload failed');
