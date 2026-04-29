@@ -30,6 +30,12 @@ app.use('/api/upload', require('./routes/uploadRoutes'));
 const { errorHandler } = require('./middleware/errorMiddleware');
 app.use(errorHandler);
 
+// Catch-all route for debugging 404s
+app.use((req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.url}`);
+    res.status(404).send(`Route ${req.url} not found on this server.`);
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, console.log(`Server running on port ${PORT}`));
