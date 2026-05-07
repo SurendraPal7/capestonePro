@@ -17,7 +17,7 @@ const userSchema = mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['farmer', 'buyer'],
+        enum: ['farmer', 'buyer', 'admin'],
         required: true,
     },
     // Common fields
@@ -30,6 +30,19 @@ const userSchema = mongoose.Schema({
         city: String,
         state: String,
         zip: String,
+        // Add coordinates for geolocation
+        coordinates: {
+            latitude: {
+                type: Number,
+                min: -90,
+                max: 90
+            },
+            longitude: {
+                type: Number,
+                min: -180,
+                max: 180
+            }
+        }
     },
     // Farmer specific
     farmName: {
@@ -42,6 +55,30 @@ const userSchema = mongoose.Schema({
     businessName: {
         type: String,
     },
+    // Admin and approval fields
+    isApproved: {
+        type: Boolean,
+        default: function() {
+            return this.role !== 'farmer'; // Auto-approve buyers and admins
+        }
+    },
+    approvalStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: function() {
+            return this.role === 'farmer' ? 'pending' : 'approved';
+        }
+    },
+    approvalDate: {
+        type: Date,
+    },
+    approvalNotes: {
+        type: String,
+    },
+    approvedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    },
 }, {
     timestamps: true,
 });
@@ -50,9 +87,9 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     if (!this.isModified('password')) {
-        next();
+        return;
     }
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

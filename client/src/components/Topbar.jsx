@@ -29,10 +29,12 @@ const Topbar = () => {
                     <FaBell />
                     <span className="badge-dot"></span>
                 </button>
-                <Link to="/cart" className="icon-btn">
-                    <FaShoppingCart />
-                    {cartItems.length > 0 && <span className="badge-count">{cartItems.length}</span>}
-                </Link>
+                {user?.role === 'buyer' && (
+                    <Link to="/cart" className="icon-btn">
+                        <FaShoppingCart />
+                        {cartItems.length > 0 && <span className="badge-count">{cartItems.length}</span>}
+                    </Link>
+                )}
                 
                 <div className="user-profile">
                     <div className="user-info">

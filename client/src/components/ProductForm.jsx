@@ -60,6 +60,7 @@ const ProductForm = ({ onProductAdded, setEditingProduct, product = null }) => {
                             <option value='Fruits'>Fruits</option>
                             <option value='Grains'>Grains</option>
                             <option value='Dairy'>Dairy</option>
+                            <option value='Meat'>Meat</option>
                             <option value='Other'>Other</option>
                         </select>
                     </div>

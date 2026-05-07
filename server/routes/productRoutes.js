@@ -8,14 +8,14 @@ import {
     deleteProduct,
     getMyProducts,
 } from '../controllers/productController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, approvedFarmerOnly } from '../middleware/authMiddleware.js';
 
-router.route('/').get(getProducts).post(protect, createProduct);
+router.route('/').get(getProducts).post(protect, approvedFarmerOnly, createProduct);
 router.route('/myproducts').get(protect, getMyProducts);
 router
     .route('/:id')
     .get(getProductById)
-    .put(protect, updateProduct)
-    .delete(protect, deleteProduct);
+    .put(protect, approvedFarmerOnly, updateProduct)
+    .delete(protect, approvedFarmerOnly, deleteProduct);
 
 export default router;

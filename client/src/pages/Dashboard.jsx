@@ -10,7 +10,7 @@ import Sidebar from '../components/Sidebar';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './Dashboard.css';
 
-const DashboardProductCard = ({ product, onAddToCart }) => {
+const DashboardProductCard = ({ product, onAddToCart, showCartButton = true }) => {
     const [qty, setQty] = useState(1);
     const [showQty, setShowQty] = useState(false);
 
@@ -40,27 +40,29 @@ const DashboardProductCard = ({ product, onAddToCart }) => {
                     <div>
                         <span className='price'>₹{product.price}</span> <span className='unit'>/ {product.unit}</span>
                     </div>
-                    {!showQty ? (
-                        <button 
-                            className='add-btn' 
-                            onClick={() => setShowQty(true)}
-                            disabled={product.quantity <= 0}
-                        >
-                            <FaShoppingCart />
-                        </button>
-                    ) : (
-                        <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '20px', padding: '2px' }}>
-                            <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaMinus size={10} /></button>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{qty}</span>
-                            <button onClick={() => setQty(Math.min(product.quantity, qty + 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaPlus size={10} /></button>
+                    {showCartButton && (
+                        !showQty ? (
                             <button 
                                 className='add-btn' 
-                                onClick={() => { onAddToCart(product, qty); setShowQty(false); setQty(1); }}
-                                style={{ width: '28px', height: '28px', marginLeft: '5px' }}
+                                onClick={() => setShowQty(true)}
+                                disabled={product.quantity <= 0}
                             >
-                                <FaShoppingCart size={12} />
+                                <FaShoppingCart />
                             </button>
-                        </div>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '20px', padding: '2px' }}>
+                                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaMinus size={10} /></button>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', width: '20px', textAlign: 'center' }}>{qty}</span>
+                                <button onClick={() => setQty(Math.min(product.quantity, qty + 1))} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: '0.3rem 0.5rem', color: '#666' }}><FaPlus size={10} /></button>
+                                <button 
+                                    className='add-btn' 
+                                    onClick={() => { onAddToCart(product, qty); setShowQty(false); setQty(1); }}
+                                    style={{ width: '28px', height: '28px', marginLeft: '5px' }}
+                                >
+                                    <FaShoppingCart size={12} />
+                                </button>
+                            </div>
+                        )
                     )}
                 </div>
             </div>
@@ -112,6 +114,7 @@ const Dashboard = () => {
     }, [user]);
 
     const handleAddToCart = (product, qty = 1) => {
+        if (user.role !== 'buyer') return; // Prevent farmers from adding to cart
         addToCart(product, qty);
         alert(`Added ${qty} ${product.unit || 'item'} of ${product.name} to cart!`);
     };
@@ -314,7 +317,12 @@ const Dashboard = () => {
                                     
                                     <div className='products-grid-3'>
                                         {products.slice(0, 3).map((product) => (
-                                            <DashboardProductCard key={product._id} product={product} onAddToCart={handleAddToCart} />
+                                            <DashboardProductCard 
+                                                key={product._id} 
+                                                product={product} 
+                                                onAddToCart={handleAddToCart} 
+                                                showCartButton={user.role === 'buyer'}
+                                            />
                                         ))}
                                     </div>
                                 </div>

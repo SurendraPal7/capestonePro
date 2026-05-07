@@ -1,4 +1,4 @@
-import { FaLeaf, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import { FaSeedling, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaTractor, FaLeaf, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import './Footer.css';
 
@@ -8,52 +8,71 @@ const Footer = () => {
             <div className="container footer-content">
                 <div className="footer-section brand-section">
                     <div className="footer-logo">
-                        <FaLeaf className="text-primary"/> <strong>AgriDirect</strong>
+                        <div className="footer-logo-icon">
+                            <FaSeedling />
+                        </div>
+                        <div className="footer-logo-text">
+                            <span className="footer-logo-main">FarmDirect</span>
+                            <span className="footer-logo-tagline">Fresh • Local • Sustainable</span>
+                        </div>
                     </div>
                     <p className="footer-desc">
-                        Connecting local farmers directly with you for fresh produce, fair prices, and a sustainable future for agriculture.
+                        Connecting passionate farmers with conscious consumers for the freshest produce, 
+                        fair prices, and a sustainable agricultural future.
                     </p>
                     <div className="social-links">
-                        <a href="#" className="social-icon"><FaFacebook /></a>
-                        <a href="#" className="social-icon"><FaTwitter /></a>
-                        <a href="#" className="social-icon"><FaInstagram /></a>
-                        <a href="#" className="social-icon"><FaLinkedin /></a>
+                        <a href="#" className="social-icon facebook"><FaFacebook /></a>
+                        <a href="#" className="social-icon twitter"><FaTwitter /></a>
+                        <a href="#" className="social-icon instagram"><FaInstagram /></a>
+                        <a href="#" className="social-icon linkedin"><FaLinkedin /></a>
                     </div>
                 </div>
 
                 <div className="footer-section links-section">
-                    <h4>Company</h4>
+                    <h4><FaLeaf className="section-icon" />For Farmers</h4>
                     <ul>
-                        <li><Link to="#">About Us</Link></li>
-                        <li><Link to="#">Careers</Link></li>
-                        <li><Link to="#">Blog</Link></li>
-                        <li><Link to="#">Contact</Link></li>
+                        <li><Link to="/register?role=farmer">Join as Farmer</Link></li>
+                        <li><Link to="#">Farmer Resources</Link></li>
+                        <li><Link to="#">Pricing Guide</Link></li>
+                        <li><Link to="#">Success Stories</Link></li>
+                        <li><Link to="#">Farm Certification</Link></li>
                     </ul>
                 </div>
 
                 <div className="footer-section links-section">
-                    <h4>Resources</h4>
+                    <h4><FaHeart className="section-icon" />For Buyers</h4>
                     <ul>
-                        <li><Link to="#">Farmers Guide</Link></li>
-                        <li><Link to="#">Buyer Guide</Link></li>
+                        <li><Link to="/marketplace">Browse Marketplace</Link></li>
+                        <li><Link to="#">Quality Promise</Link></li>
+                        <li><Link to="#">Delivery Info</Link></li>
+                        <li><Link to="#">Seasonal Guide</Link></li>
+                        <li><Link to="#">Recipe Ideas</Link></li>
+                    </ul>
+                </div>
+
+                <div className="footer-section links-section">
+                    <h4><FaTractor className="section-icon" />Support</h4>
+                    <ul>
                         <li><Link to="#">Help Center</Link></li>
-                        <li><Link to="#">Community</Link></li>
-                    </ul>
-                </div>
-
-                <div className="footer-section links-section">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><Link to="#">Terms of Service</Link></li>
-                        <li><Link to="#">Privacy Policy</Link></li>
-                        <li><Link to="#">Cookie Policy</Link></li>
-                        <li><Link to="#">Security</Link></li>
+                        <li><Link to="#">Contact Us</Link></li>
+                        <li><Link to="#">Community Forum</Link></li>
+                        <li><Link to="#">Report Issue</Link></li>
+                        <li><Link to="#">Feedback</Link></li>
                     </ul>
                 </div>
             </div>
+            
             <div className="footer-bottom">
                 <div className="container bottom-content">
-                    <p>© {new Date().getFullYear()} AgriDirect Inc. All rights reserved.</p>
+                    <div className="footer-bottom-left">
+                        <p>© {new Date().getFullYear()} FarmDirect. Cultivating connections, growing communities.</p>
+                    </div>
+                    <div className="footer-bottom-right">
+                        <Link to="#">Terms</Link>
+                        <Link to="#">Privacy</Link>
+                        <Link to="#">Cookies</Link>
+                        <Link to="#">Security</Link>
+                    </div>
                 </div>
             </div>
         </footer>

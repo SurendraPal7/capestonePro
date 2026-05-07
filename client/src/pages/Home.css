@@ -1,51 +1,37 @@
-/* client/src/pages/Home.css */
-/* Modern Mobile First Redesign */
-:root {
-    --primary-color: #00d26a; /* Green */
-    --primary-color-dark: #00b359;
-    --dark-bg: #121921; /* Very dark blue from cta */
-    --light-bg: #f4fcf7; /* slight green tint */
-}
-
-/* Removing any generic layout paddings on main container if any */
-body {
-    background-color: var(--light-bg);
-}
-
+/* Agricultural Home Page Styles */
 .home {
     display: flex;
     flex-direction: column;
-    align-items: center;
     width: 100%;
     overflow-x: hidden;
-}
-
-.text-secondary {
-    color: var(--primary-color);
-}
-.text-primary {
-    color: var(--primary-color);
-}
-
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+    background: linear-gradient(
+        180deg,
+        var(--color-bg) 0%,                     /* Warm Cream */
+        rgba(244, 228, 188, 0.3) 25%,          /* Light Wheat */
+        rgba(184, 212, 160, 0.2) 50%,          /* Light Sage */
+        rgba(244, 228, 188, 0.3) 75%,          /* Light Wheat */
+        var(--color-bg) 100%                    /* Warm Cream */
+    );
 }
 
 /* Hero Section */
 .hero {
     position: relative;
     width: 100%;
-    height: 70vh;
-    min-height: 550px;
-    background: url('https://images.unsplash.com/photo-1590779033100-9f60a05a013d?q=80&w=2000&auto=format&fit=crop') no-repeat center center/cover;
+    min-height: 80vh;
+    background: 
+        linear-gradient(135deg, 
+            rgba(58, 125, 68, 0.85) 0%,     /* Deep Field Green */
+            rgba(135, 169, 107, 0.8) 25%,   /* Sage Green */
+            rgba(218, 165, 32, 0.7) 75%,    /* Harvest Gold */
+            rgba(139, 69, 19, 0.85) 100%    /* Rich Soil Brown */
+        ), 
+        url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2000&auto=format&fit=crop') center/cover;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    overflow: hidden;
+    color: white;
 }
 
 .hero-overlay {
@@ -54,349 +40,820 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%);
+    background: linear-gradient(
+        135deg, 
+        rgba(58, 125, 68, 0.9) 0%,      /* Deep Field Green */
+        rgba(44, 62, 45, 0.85) 30%,     /* Forest Dark */
+        rgba(135, 169, 107, 0.7) 70%,   /* Sage Green */
+        rgba(58, 125, 68, 0.9) 100%     /* Deep Field Green */
+    );
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
-    color: white;
-    max-width: 600px;
-    padding: 0 2rem;
+    max-width: 800px;
+    padding: 2rem;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.2) 0%,
+        rgba(218, 165, 32, 0.3) 50%,       /* Gold Tint */
+        rgba(255,255,255,0.2) 100%
+    );
+    backdrop-filter: blur(15px);
+    padding: 0.75rem 1.25rem;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.3);
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 
+        0 4px 15px rgba(0,0,0,0.1),
+        inset 0 1px 5px rgba(255,255,255,0.2);
+}
+
+.badge-icon {
+    color: var(--color-accent);
 }
 
 .hero-content h1 {
-    font-size: 2.8rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
     line-height: 1.1;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    text-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.hero-content p {
-    font-size: 1.1rem;
-    margin-bottom: 2.5rem;
-    opacity: 0.9;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+.hero-description {
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+    opacity: 0.95;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hero-buttons {
     display: flex;
-    flex-direction: column;
     gap: 1rem;
-    align-items: center;
-}
-
-@media (min-width: 768px) {
-    .hero-content h1 {
-        font-size: 3.5rem;
-    }
-    .hero-buttons {
-        flex-direction: row;
-        justify-content: center;
-    }
-}
-
-.btn {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
-    text-align: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
 }
 
 .btn-lg {
     padding: 1rem 2rem;
     font-size: 1.1rem;
     border-radius: 12px;
-    width: 100%;
-    max-width: 280px;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-color-dark);
-    transform: translateY(-2px);
-    color: white;
-}
-
-.btn-glow {
-    box-shadow: 0 4px 15px rgba(0, 210, 106, 0.4);
-}
-
-.btn-dark-translucent {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: white;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.btn-dark-translucent:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-    color: white;
-}
-
-/* Why Choose Section */
-.why-choose {
-    padding: 4rem 1.5rem;
-    text-align: center;
-}
-
-.why-choose h2 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin-bottom: 1rem;
-}
-
-.section-subtitle {
-    color: #666;
-    margin-bottom: 3rem;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 1.1rem;
-}
-
-.features-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.feature-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    text-align: left;
-    transition: transform 0.3s ease;
-}
-
-.feature-card:hover {
-    transform: translateY(-5px);
-}
-
-.icon-wrapper {
-    background: var(--light-bg);
-    width: 56px;
-    height: 56px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
+    gap: 0.5rem;
+    min-width: 200px;
     justify-content: center;
-    margin-bottom: 1.5rem;
 }
 
-.feature-icon {
-    color: var(--primary-color);
-    font-size: 1.6rem;
-}
-
-.feature-card h3 {
-    font-size: 1.4rem;
-    margin-bottom: 0.8rem;
-    color: #1a1a1a;
-}
-
-.feature-card p {
-    color: #666;
-    line-height: 1.6;
+.btn-icon {
     font-size: 1rem;
 }
 
-@media (min-width: 768px) {
-    .features-grid {
-        flex-direction: row;
-    }
-    .feature-card {
-        flex: 1;
-    }
-}
-
-/* Community Section */
-.community {
-    padding: 3rem 1.5rem;
-    text-align: center;
-    background-color: #ebf7ef;
-    border-radius: 2rem;
-    margin: 2rem 0;
-    width: 95%;
-    max-width: 1200px;
-}
-
-.community h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 2rem;
-}
-
-.stats-grid {
+.hero-stats {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(
+        135deg,
+        var(--color-accent) 0%,         /* Harvest Gold */
+        #F4D03F 50%,                    /* Light Gold */
+        #F7DC6F 100%                    /* Lighter Gold */
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: var(--font-heading);
+    text-shadow: 0 2px 4px rgba(218, 165, 32, 0.3);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    font-weight: 600;
+}
+
+/* Features Section */
+.features-section {
+    padding: 5rem 0;
+    background: linear-gradient(
+        135deg, 
+        var(--color-bg) 0%,                    /* Warm Cream */
+        var(--color-accent-light) 25%,         /* Wheat Cream */
+        rgba(184, 212, 160, 0.3) 50%,         /* Light Sage */
+        var(--color-accent-light) 75%,         /* Wheat Cream */
+        var(--color-bg) 100%                   /* Warm Cream */
+    );
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-primary);
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: var(--color-text-light);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: var(--color-white);
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--color-primary);
+    box-shadow: 
+        0 15px 40px rgba(58, 125, 68, 0.2),
+        0 8px 20px rgba(135, 169, 107, 0.1),
+        0 4px 10px rgba(218, 165, 32, 0.05);
+    background: linear-gradient(
+        135deg,
+        var(--color-white) 0%,
+        rgba(244, 228, 188, 0.2) 50%,      /* Light Wheat Tint */
+        var(--color-white) 100%
+    );
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(
+        135deg, 
+        var(--color-primary) 0%,        /* Deep Field Green */
+        var(--color-primary-light) 50%, /* Light Field Green */
+        var(--color-sage) 100%          /* Sage Green */
+    );
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    box-shadow: 
+        0 8px 20px rgba(58, 125, 68, 0.3),
+        0 4px 10px rgba(135, 169, 107, 0.2);
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text-dark);
+}
+
+.feature-card p {
+    color: var(--color-text-light);
+    line-height: 1.6;
+}
+
+/* Categories Section */
+.categories-section {
+    padding: 5rem 0;
+    background: linear-gradient(
+        45deg, 
+        var(--color-white) 0%,              /* Pure White */
+        var(--color-accent-light) 20%,      /* Wheat Cream */
+        rgba(135, 169, 107, 0.1) 40%,      /* Very Light Sage */
+        var(--color-accent-light) 60%,      /* Wheat Cream */
+        rgba(218, 165, 32, 0.1) 80%,       /* Very Light Gold */
+        var(--color-white) 100%             /* Pure White */
+    );
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
 }
 
-.stat-card {
-    background: white;
-    padding: 1.8rem;
+.category-card {
+    background: var(--color-white);
+    padding: 2rem 1.5rem;
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    text-align: left;
-}
-
-.stat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.stat-title {
-    color: #666;
-    font-weight: 500;
-    font-size: 0.9rem;
-}
-
-.stat-value {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: #1a1a1a;
-    margin-bottom: 0.5rem;
-}
-
-.stat-desc {
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-@media (min-width: 768px) {
-    .stats-grid {
-        flex-direction: row;
-    }
-    .stat-card {
-        flex: 1;
-    }
-}
-
-/* CTA Banner */
-.cta-banner {
-    width: 100%;
-    background: var(--dark-bg);
-    margin: 4rem 0 0 0;
-    padding: 5rem 2rem;
     text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg, 
+        transparent 0%,
+        rgba(58, 125, 68, 0.1) 25%,        /* Field Green Tint */
+        rgba(218, 165, 32, 0.15) 50%,      /* Gold Tint */
+        rgba(58, 125, 68, 0.1) 75%,        /* Field Green Tint */
+        transparent 100%
+    );
+    transition: left 0.6s ease;
+}
+
+.category-card:hover::before {
+    left: 100%;
+}
+
+.category-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--color-primary);
+    box-shadow: 
+        0 15px 30px rgba(58, 125, 68, 0.15),
+        0 8px 15px rgba(218, 165, 32, 0.1);
+    background: linear-gradient(
+        135deg,
+        var(--color-white) 0%,
+        rgba(244, 228, 188, 0.3) 50%,      /* Light Wheat */
+        var(--color-white) 100%
+    );
+}
+
+.category-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1rem;
+}
+
+.category-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-dark);
+}
+
+.category-card p {
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    min-height: 1.2em; /* Prevent layout shift during loading */
+}
+
+.category-card p.loading {
+    opacity: 0.6;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.category-arrow {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-arrow {
+    opacity: 1;
+}
+
+.category-card.selected {
+    border-color: var(--color-primary);
+    background: linear-gradient(
+        135deg,
+        var(--color-white) 0%,
+        rgba(58, 125, 68, 0.1) 50%,
+        var(--color-white) 100%
+    );
+    transform: translateY(-8px);
+    box-shadow: 
+        0 15px 30px rgba(58, 125, 68, 0.2),
+        0 8px 15px rgba(218, 165, 32, 0.1);
+}
+
+.category-card.selected .category-arrow {
+    opacity: 1;
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* Category Filter Status */
+.category-filter-status {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
     color: white;
 }
 
-.cta-content h2 {
-    font-size: 2.2rem;
-    font-weight: 800;
+.filter-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.filter-value {
+    background: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+}
+
+.clear-filter-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.clear-filter-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.1);
+}
+
+/* Farmers Section */
+.farmers-section {
+    padding: 5rem 0;
+    background: linear-gradient(
+        180deg, 
+        var(--color-bg) 0%,                     /* Warm Cream */
+        rgba(184, 212, 160, 0.2) 25%,          /* Light Sage Tint */
+        rgba(244, 228, 188, 0.4) 50%,          /* Light Wheat Tint */
+        rgba(184, 212, 160, 0.2) 75%,          /* Light Sage Tint */
+        var(--color-bg) 100%                    /* Warm Cream */
+    );
+}
+
+.farmers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.no-farmers {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--color-white);
+    border-radius: 16px;
+    border: 2px dashed var(--color-primary);
+}
+
+.no-farmers-icon {
+    font-size: 4rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+}
+
+.farmer-card {
+    background: var(--color-white);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 2px solid transparent;
+}
+
+.farmer-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--color-primary);
+    box-shadow: 
+        0 15px 40px rgba(58, 125, 68, 0.2),
+        0 8px 20px rgba(135, 169, 107, 0.15),
+        0 4px 10px rgba(218, 165, 32, 0.1);
+}
+
+.farmer-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.farmer-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.farmer-card:hover .farmer-image img {
+    transform: scale(1.05);
+}
+
+.farmer-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg, 
+        var(--color-sage-light) 0%,        /* Light Sage */
+        var(--color-sage) 50%,             /* Sage Green */
+        var(--color-primary-light) 100%    /* Light Field Green */
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--color-white);
+}
+
+.farmer-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(
+        135deg, 
+        var(--color-accent) 0%,         /* Harvest Gold */
+        #F4D03F 50%,                    /* Light Gold */
+        var(--color-accent) 100%        /* Harvest Gold */
+    );
+    color: var(--color-text-dark);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 
+        0 4px 8px rgba(218, 165, 32, 0.4),
+        0 2px 4px rgba(0,0,0,0.1);
+}
+
+.farmer-info {
+    padding: 2rem;
+}
+
+.farmer-info h4 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-dark);
+}
+
+.farmer-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.farmer-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.stars {
+    color: var(--color-accent);
+    display: flex;
+    gap: 2px;
+}
+
+.farmer-rating span {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+}
+
+.farmer-description {
+    color: var(--color-text-light);
+    line-height: 1.5;
     margin-bottom: 1.5rem;
-    line-height: 1.2;
+    font-size: 0.95rem;
+}
+
+.farmer-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.section-footer {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+/* CTA Section */
+.cta-section {
+    padding: 5rem 0;
+    background: linear-gradient(
+        135deg, 
+        var(--color-primary) 0%,            /* Deep Field Green */
+        var(--color-primary-dark) 25%,      /* Darker Field Green */
+        rgba(44, 62, 45, 0.95) 50%,        /* Forest Dark */
+        var(--color-primary-dark) 75%,      /* Darker Field Green */
+        var(--color-primary) 100%           /* Deep Field Green */
+    );
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(135, 169, 107, 0.1) 0%,       /* Sage Green Overlay */
+        transparent 25%,
+        rgba(218, 165, 32, 0.1) 50%,       /* Gold Overlay */
+        transparent 75%,
+        rgba(135, 169, 107, 0.1) 100%      /* Sage Green Overlay */
+    );
+    pointer-events: none;
+}
+
+.cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.2) 0%,
+        rgba(218, 165, 32, 0.3) 50%,       /* Gold Tint */
+        rgba(255,255,255,0.2) 100%
+    );
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 2rem;
+    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 
+        0 8px 25px rgba(0,0,0,0.2),
+        inset 0 2px 10px rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 2;
+}
+
+.cta-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: white;
 }
 
 .cta-content p {
-    color: #a0aab2;
-    margin-bottom: 2.5rem;
     font-size: 1.1rem;
+    margin-bottom: 3rem;
+    opacity: 0.9;
+    line-height: 1.6;
 }
 
 .cta-buttons {
     display: flex;
-    flex-direction: column;
     gap: 1rem;
-    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-.btn-outline-light {
-    background-color: transparent;
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
+.btn-accent {
+    background: linear-gradient(
+        135deg, 
+        var(--color-accent) 0%,         /* Harvest Gold */
+        #F4D03F 25%,                    /* Light Gold */
+        #F7DC6F 50%,                    /* Lighter Gold */
+        #F4D03F 75%,                    /* Light Gold */
+        var(--color-accent) 100%        /* Harvest Gold */
+    );
+    color: var(--color-text-dark);
+    box-shadow: 
+        0 4px 15px rgba(218, 165, 32, 0.4),
+        0 2px 8px rgba(0,0,0,0.1);
 }
 
-.btn-outline-light:hover {
-    border-color: white;
-    background-color: rgba(255,255,255,0.05);
-    color: white;
+.btn-accent:hover {
+    background: linear-gradient(
+        135deg, 
+        #B8860B 0%,                     /* Darker Gold */
+        var(--color-accent) 25%,        /* Harvest Gold */
+        #F4D03F 50%,                    /* Light Gold */
+        var(--color-accent) 75%,        /* Harvest Gold */
+        #B8860B 100%                    /* Darker Gold */
+    );
+    color: var(--color-text-dark);
+    box-shadow: 
+        0 6px 20px rgba(218, 165, 32, 0.5),
+        0 3px 10px rgba(0,0,0,0.15);
 }
 
-@media (min-width: 768px) {
-    .cta-buttons {
-        flex-direction: row;
-        justify-content: center;
-    }
-    .cta-content h2 {
-        font-size: 2.8rem;
-    }
-}
-
-/* Footer */
-.footer {
-    width: 100%;
-    padding: 3rem 1.5rem 2rem;
-    margin-top: 2rem;
-}
-
-.footer-content {
+/* Map Toggle Section */
+.map-toggle-section {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-@media (min-width: 768px) {
-    .footer-content {
-        flex-direction: row;
-        justify-content: space-between;
+.filter-status {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    background: rgba(58, 125, 68, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(58, 125, 68, 0.2);
+}
+
+/* Distance Badge */
+.distance-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: linear-gradient(
+        135deg, 
+        var(--color-accent) 0%,         /* Harvest Gold */
+        #F4D03F 100%                    /* Light Gold */
+    );
+    color: var(--color-text-dark);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(218, 165, 32, 0.3);
+    z-index: 3;
+}
+
+/* Enhanced Farmer Card Styles */
+.farmer-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.farmer-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.farmer-card:hover .farmer-image img {
+    transform: scale(1.05);
+}
+
+/* Responsive Design Updates */
+@media (max-width: 768px) {
+    .map-toggle-section {
+        flex-direction: column;
+        align-items: stretch;
     }
-}
-
-.footer-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.4rem;
-    color: #1a1a1a;
-}
-
-.footer-links {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.footer-links a {
-    color: #666;
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.footer-links a:hover {
-    color: var(--primary-color);
-}
-
-.footer-bottom {
-    text-align: center;
-    color: #999;
-    font-size: 0.85rem;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    
+    .filter-status {
+        text-align: center;
+    }
+    
+    .distance-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .category-filter-status {
+        padding: 0.75rem 1rem;
+    }
+    
+    .filter-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .clear-filter-btn {
+        margin-left: 0;
+        align-self: flex-end;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-lg {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .hero-stats {
+        gap: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 2rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .categories-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .farmers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-content h2 {
+        font-size: 2rem;
+    }
 }

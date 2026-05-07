@@ -1,15 +1,19 @@
 import { useState, useContext, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { FaSeedling, FaUser, FaEnvelope, FaLock, FaPhone, FaMapMarkerAlt, FaTractor, FaStore, FaEye, FaEyeSlash, FaUpload } from 'react-icons/fa';
 import AuthContext from '../context/AuthContext';
 import './Auth.css';
 
 const Register = () => {
+    const [searchParams] = useSearchParams();
+    const initialRole = searchParams.get('role') || 'buyer';
+    
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
-        role: 'buyer', // default
+        role: initialRole,
         phone: '',
         address: '',
         city: '',
@@ -20,6 +24,10 @@ const Register = () => {
         farmImage: '',
     });
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [imageUploading, setImageUploading] = useState(false);
+
     const { register, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -27,7 +35,8 @@ const Register = () => {
 
     useEffect(() => {
         if (user) {
-            if (user.role === 'farmer') navigate('/dashboard');
+            if (user.role === 'admin') navigate('/admin');
+            else if (user.role === 'farmer') navigate('/dashboard');
             else navigate('/marketplace');
         }
     }, [user, navigate]);
@@ -39,8 +48,27 @@ const Register = () => {
         }));
     };
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageUploading(true);
+            const uploadData = new FormData();
+            uploadData.append('image', file);
+            try {
+                const { data } = await axios.post('/api/upload', uploadData);
+                setFormData(prev => ({ ...prev, farmImage: `${data.image}` }));
+            } catch (err) {
+                console.error(err);
+                alert('Image upload failed');
+            } finally {
+                setImageUploading(false);
+            }
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         try {
             const payload = {
                 name,
@@ -57,86 +85,226 @@ const Register = () => {
         } catch (error) {
             console.error(error);
             alert(error.response?.data?.message || 'Registration failed');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className='auth-container'>
-            <div className='auth-card card' style={{ maxWidth: '600px' }}>
-                <h2>Create Account</h2>
-                <p>Join our community today</p>
-                <form onSubmit={handleSubmit}>
-                    <div className='form-row'>
-                        <div className='form-group'>
-                            <label className='form-label'>Full Name</label>
-                            <input type='text' className='input-field' name='name' value={name} onChange={onChange} required />
+        <div className='auth-container register-container'>
+            <div className='auth-background'></div>
+            <div className='auth-content'>
+                <div className='auth-card register-card'>
+                    <div className='auth-header'>
+                        <div className='auth-logo'>
+                            <FaSeedling />
                         </div>
-                        <div className='form-group'>
-                            <label className='form-label'>Email</label>
-                            <input type='email' className='input-field' name='email' value={email} onChange={onChange} required />
-                        </div>
+                        <h2>Join FarmDirect Community</h2>
+                        <p>Connect with fresh, local agriculture</p>
                     </div>
 
-                    <div className='form-group'>
-                        <label className='form-label'>I am a...</label>
-                        <select className='input-field' name='role' value={role} onChange={onChange}>
-                            <option value='buyer'>Restaurant/Hotel Owner (Buyer)</option>
-                            <option value='farmer'>Farmer (Seller)</option>
-                        </select>
+                    <div className='role-selector'>
+                        <div className='role-tabs'>
+                            <button
+                                type='button'
+                                className={`role-tab ${role === 'buyer' ? 'active' : ''}`}
+                                onClick={() => setFormData(prev => ({ ...prev, role: 'buyer' }))}
+                            >
+                                <FaStore className='role-icon' />
+                                <span>I'm a Buyer</span>
+                                <small>Restaurant, Hotel, Consumer</small>
+                            </button>
+                            <button
+                                type='button'
+                                className={`role-tab ${role === 'farmer' ? 'active' : ''}`}
+                                onClick={() => setFormData(prev => ({ ...prev, role: 'farmer' }))}
+                            >
+                                <FaTractor className='role-icon' />
+                                <span>I'm a Farmer</span>
+                                <small>Grow & Sell Fresh Produce</small>
+                            </button>
+                        </div>
                     </div>
-
-                    {role === 'farmer' ? (
-                        <>
+                    
+                    <form onSubmit={handleSubmit} className='auth-form register-form'>
+                        <div className='form-row'>
                             <div className='form-group'>
-                                <label className='form-label'>Farm Name</label>
-                                <input type='text' className='input-field' name='farmName' value={formData.farmName} onChange={onChange} required />
+                                <label className='form-label'>
+                                    <FaUser className='label-icon' />
+                                    Full Name
+                                </label>
+                                <input 
+                                    type='text' 
+                                    className='input-field' 
+                                    name='name' 
+                                    value={name} 
+                                    onChange={onChange} 
+                                    placeholder='Enter your full name'
+                                    required 
+                                />
                             </div>
                             <div className='form-group'>
-                                <label className='form-label'>Farm Image (Optional)</label>
-                                <input type='text' className='input-field' name='farmImage' value={formData.farmImage} onChange={onChange} placeholder='Image URL or upload below' style={{ marginBottom: '0.5rem' }} />
-                                <input type='file' accept='image/*' onChange={async (e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const uploadData = new FormData();
-                                        uploadData.append('image', file);
-                                        try {
-                                            const { data } = await axios.post('/api/upload', uploadData);
-                                            setFormData(prev => ({ ...prev, farmImage: `${data.image}` }));
-                                        } catch (err) {
-                                            console.error(err);
-                                            alert('Image upload failed');
-                                        }
-                                    }
-                                }} />
+                                <label className='form-label'>
+                                    <FaEnvelope className='label-icon' />
+                                    Email Address
+                                </label>
+                                <input 
+                                    type='email' 
+                                    className='input-field' 
+                                    name='email' 
+                                    value={email} 
+                                    onChange={onChange} 
+                                    placeholder='Enter your email'
+                                    required 
+                                />
                             </div>
-                        </>
-                    ) : (
-                        <div className='form-group'>
-                            <label className='form-label'>Business/Restaurant Name</label>
-                            <input type='text' className='input-field' name='businessName' value={businessName} onChange={onChange} required />
                         </div>
-                    )}
 
-                    <div className='form-row'>
-                        <div className='form-group'>
-                            <label className='form-label'>Phone</label>
-                            <input type='text' className='input-field' name='phone' value={phone} onChange={onChange} required />
-                        </div>
-                        <div className='form-group'>
-                            <label className='form-label'>City</label>
-                            <input type='text' className='input-field' name='city' value={city} onChange={onChange} required />
-                        </div>
-                    </div>
-                    <div className='form-group'>
-                        <label className='form-label'>Password</label>
-                        <input type='password' className='input-field' name='password' value={password} onChange={onChange} required />
-                    </div>
+                        {role === 'farmer' ? (
+                            <div className='form-group'>
+                                <label className='form-label'>
+                                    <FaTractor className='label-icon' />
+                                    Farm Name
+                                </label>
+                                <input 
+                                    type='text' 
+                                    className='input-field' 
+                                    name='farmName' 
+                                    value={farmName} 
+                                    onChange={onChange} 
+                                    placeholder='Enter your farm name'
+                                    required 
+                                />
+                            </div>
+                        ) : (
+                            <div className='form-group'>
+                                <label className='form-label'>
+                                    <FaStore className='label-icon' />
+                                    Business Name
+                                </label>
+                                <input 
+                                    type='text' 
+                                    className='input-field' 
+                                    name='businessName' 
+                                    value={businessName} 
+                                    onChange={onChange} 
+                                    placeholder='Restaurant, hotel, or business name'
+                                    required 
+                                />
+                            </div>
+                        )}
 
-                    <button type='submit' className='btn btn-primary btn-block'>Register</button>
-                </form>
-                <p className='auth-footer'>
-                    Already have an account? <Link to='/login'>Login</Link>
-                </p>
+                        {role === 'farmer' && (
+                            <div className='form-group'>
+                                <label className='form-label'>
+                                    <FaUpload className='label-icon' />
+                                    Farm Image (Optional)
+                                </label>
+                                <div className='file-upload-wrapper'>
+                                    <input 
+                                        type='text' 
+                                        className='input-field' 
+                                        name='farmImage' 
+                                        value={formData.farmImage} 
+                                        onChange={onChange} 
+                                        placeholder='Image URL or upload below'
+                                        readOnly={imageUploading}
+                                    />
+                                    <div className='file-upload'>
+                                        <input 
+                                            type='file' 
+                                            accept='image/*' 
+                                            onChange={handleImageUpload}
+                                            disabled={imageUploading}
+                                            id='farm-image-upload'
+                                        />
+                                        <label htmlFor='farm-image-upload' className='file-upload-label'>
+                                            {imageUploading ? 'Uploading...' : 'Choose File'}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className='form-row'>
+                            <div className='form-group'>
+                                <label className='form-label'>
+                                    <FaPhone className='label-icon' />
+                                    Phone Number
+                                </label>
+                                <input 
+                                    type='tel' 
+                                    className='input-field' 
+                                    name='phone' 
+                                    value={phone} 
+                                    onChange={onChange} 
+                                    placeholder='Enter phone number'
+                                    required 
+                                />
+                            </div>
+                            <div className='form-group'>
+                                <label className='form-label'>
+                                    <FaMapMarkerAlt className='label-icon' />
+                                    City
+                                </label>
+                                <input 
+                                    type='text' 
+                                    className='input-field' 
+                                    name='city' 
+                                    value={city} 
+                                    onChange={onChange} 
+                                    placeholder='Enter your city'
+                                    required 
+                                />
+                            </div>
+                        </div>
+                        
+                        <div className='form-group'>
+                            <label className='form-label'>
+                                <FaLock className='label-icon' />
+                                Password
+                            </label>
+                            <div className='password-input-wrapper'>
+                                <input 
+                                    type={showPassword ? 'text' : 'password'} 
+                                    className='input-field' 
+                                    name='password' 
+                                    value={password} 
+                                    onChange={onChange} 
+                                    placeholder='Create a strong password'
+                                    required 
+                                />
+                                <button
+                                    type='button'
+                                    className='password-toggle'
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className='terms-agreement'>
+                            <label className='checkbox-label'>
+                                <input type='checkbox' required />
+                                <span className='checkmark'></span>
+                                I agree to the <Link to='#'>Terms of Service</Link> and <Link to='#'>Privacy Policy</Link>
+                            </label>
+                        </div>
+
+                        <button 
+                            type='submit' 
+                            className={`btn btn-primary btn-block ${isLoading ? 'loading' : ''}`}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Creating Account...' : `Join as ${role === 'farmer' ? 'Farmer' : 'Buyer'}`}
+                        </button>
+                    </form>
+                    
+                    <div className='auth-footer'>
+                        <p>Already have an account? <Link to='/login' className='auth-link'>Sign in here</Link></p>
+                    </div>
+                </div>
             </div>
         </div>
     );
