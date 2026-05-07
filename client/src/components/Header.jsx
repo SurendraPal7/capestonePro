@@ -70,6 +70,10 @@ const Header = () => {
                                         <Link to='/orders' className='nav-link' onClick={() => setIsOpen(false)}>
                                             <span>My Orders</span>
                                         </Link>
+                                        <Link to='/profile' className='nav-link' onClick={() => setIsOpen(false)}>
+                                            <FaUser className='nav-icon' />
+                                            <span>Profile</span>
+                                        </Link>
                                         <Link to='/cart' className='nav-link cart-link' onClick={() => setIsOpen(false)}>
                                             <FaShoppingBasket className='nav-icon' />
                                             <span>Cart</span>

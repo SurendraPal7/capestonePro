@@ -36,6 +36,24 @@ const Login = () => {
         <div className='auth-container'>
             <div className='auth-background'></div>
             <div className='auth-content'>
+                <div className='auth-benefits'>
+                    <h3>Join thousands of farmers and buyers</h3>
+                    <div className='benefit-list'>
+                        <div className='benefit-item'>
+                            <div className='benefit-icon'>🌱</div>
+                            <span>Fresh, locally-sourced produce</span>
+                        </div>
+                        <div className='benefit-item'>
+                            <div className='benefit-icon'>🚚</div>
+                            <span>Direct farm-to-table delivery</span>
+                        </div>
+                        <div className='benefit-item'>
+                            <div className='benefit-icon'>🤝</div>
+                            <span>Support local farming communities</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div className='auth-card'>
                     <div className='auth-header'>
                         <div className='auth-logo'>
@@ -105,24 +123,6 @@ const Login = () => {
                     
                     <div className='auth-footer'>
                         <p>New to FarmDirect? <Link to='/register' className='auth-link'>Create an account</Link></p>
-                    </div>
-                </div>
-                
-                <div className='auth-benefits'>
-                    <h3>Join thousands of farmers and buyers</h3>
-                    <div className='benefit-list'>
-                        <div className='benefit-item'>
-                            <div className='benefit-icon'>🌱</div>
-                            <span>Fresh, locally-sourced produce</span>
-                        </div>
-                        <div className='benefit-item'>
-                            <div className='benefit-icon'>🚚</div>
-                            <span>Direct farm-to-table delivery</span>
-                        </div>
-                        <div className='benefit-item'>
-                            <div className='benefit-icon'>🤝</div>
-                            <span>Support local farming communities</span>
-                        </div>
                     </div>
                 </div>
             </div>

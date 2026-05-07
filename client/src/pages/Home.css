@@ -108,6 +108,19 @@
     flex-wrap: wrap;
 }
 
+/* Fix outline button hover in hero section */
+.hero-buttons .btn-outline {
+    background-color: transparent;
+    border: 2px solid white;
+    color: white;
+}
+
+.hero-buttons .btn-outline:hover {
+    background-color: white;
+    color: var(--color-primary);
+    border-color: white;
+}
+
 .btn-lg {
     padding: 1rem 2rem;
     font-size: 1.1rem;

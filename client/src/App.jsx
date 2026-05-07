@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
+import ReplaceCartModal from './components/ReplaceCartModal';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -12,6 +13,7 @@ import Products from './pages/Products';
 import Earnings from './pages/Earnings';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -24,6 +26,7 @@ function App() {
                 <CartProvider>
                     <LocationProvider>
                         <Header />
+                        <ReplaceCartModal />
                         <main className='py-3'>
                             <Routes>
                                 <Route 
@@ -66,6 +69,7 @@ function App() {
                                 <Route path='/earnings' element={<Earnings />} />
                                 <Route path='/analytics' element={<Analytics />} />
                                 <Route path='/settings' element={<Settings />} />
+                                <Route path='/profile' element={<Profile />} />
                             </Routes>
                         </main>
                     </LocationProvider>

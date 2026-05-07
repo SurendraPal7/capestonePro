@@ -115,8 +115,14 @@ const Dashboard = () => {
 
     const handleAddToCart = (product, qty = 1) => {
         if (user.role !== 'buyer') return; // Prevent farmers from adding to cart
-        addToCart(product, qty);
-        alert(`Added ${qty} ${product.unit || 'item'} of ${product.name} to cart!`);
+        
+        const added = addToCart(product, qty);
+        
+        // Only show success message if item was actually added
+        if (added) {
+            alert(`Added ${qty} ${product.unit || 'item'} of ${product.name} to cart!`);
+        }
+        // If not added, the modal will be shown automatically by CartContext
     };
 
     const handleProductAdded = () => {

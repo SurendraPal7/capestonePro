@@ -6,7 +6,7 @@ import CartContext from '../context/CartContext';
 import LocationFilter from '../components/LocationFilter';
 import FarmMap from '../components/FarmMap';
 import { useLocation as useLocationContext } from '../context/LocationContext';
-import { FaShoppingCart, FaSearch, FaFilter, FaMinus, FaPlus, FaAngleLeft, FaAngleRight, FaHeart, FaStar, FaBox, FaMap, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaFilter, FaMinus, FaPlus, FaAngleLeft, FaAngleRight, FaHeart, FaStar, FaBox, FaMap, FaMapMarkerAlt, FaLocationArrow } from 'react-icons/fa';
 import './Marketplace.css';
 import './Dashboard.css'; // Leverage the existing responsive layout CSS from Dashboard
 
@@ -85,12 +85,16 @@ const Marketplace = () => {
     const [showNearbyOnly, setShowNearbyOnly] = useState(false);
     const [showMap, setShowMap] = useState(false);
     const [selectedFarm, setSelectedFarm] = useState(null);
+    const [selectedRadius, setSelectedRadius] = useState(10); // Default 10km
+    const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     
     const { addToCart, cartItems } = useContext(CartContext);
     const { 
-        userLocation, 
-        filterFarmsByDistance, 
-        addDistanceToFarms 
+        userLocation,
+        locationName,
+        getCurrentLocation,
+        isLoadingLocation,
+        setNearbyRadius
     } = useLocationContext();
     
     const navigate = useNavigate();
@@ -101,12 +105,8 @@ const Marketplace = () => {
                 let url = '/api/auth/farmers';
                 const params = new URLSearchParams();
                 
-                // Add category filter if provided in URL
-                if (keyword) {
-                    params.append('category', keyword);
-                }
-                
-                // Add location filter if nearby is enabled
+                // Don't send keyword to backend - we'll filter client-side
+                // Only add location filter if nearby is enabled
                 if (showNearbyOnly && userLocation) {
                     params.append('lat', userLocation.latitude);
                     params.append('lng', userLocation.longitude);
@@ -118,20 +118,78 @@ const Marketplace = () => {
                 
                 const { data } = await axios.get(url);
                 setFarmers(data);
-                setFilteredFarmers(data);
             } catch (err) {
                 console.error("Failed to load featured farmers", err);
+                setFarmers([]);
             }
         };
         fetchFarmers();
-    }, [keyword, showNearbyOnly, userLocation]);
+    }, [showNearbyOnly, userLocation]); // Removed keyword from dependencies
 
     // Filter farmers based on location and search
     useEffect(() => {
-        let result = farmers;
+        if (!farmers || farmers.length === 0) {
+            setFilteredFarmers([]);
+            return;
+        }
+        
+        let result = [...farmers];
+        
+        // Client-side search filter for farm names
+        if (keyword && keyword.trim()) {
+            const searchTerms = keyword.toLowerCase().trim().split(/\s+/); // Split by spaces
+            result = result.filter(farm => {
+                const farmName = (farm.farmName || farm.name || '').toLowerCase();
+                const farmerName = (farm.name || '').toLowerCase();
+                const location = (farm.location?.city || '').toLowerCase();
+                const state = (farm.location?.state || '').toLowerCase();
+                
+                // Check if any search term matches
+                return searchTerms.some(term => 
+                    farmName.includes(term) || 
+                    farmerName.includes(term) || 
+                    location.includes(term) ||
+                    state.includes(term)
+                );
+            });
+        }
         
         // Add distance information to all farms
-        result = addDistanceToFarms(result);
+        if (userLocation) {
+            result = result.map(farm => {
+                if (!farm.location || !farm.location.coordinates) {
+                    return { ...farm, distance: null };
+                }
+                
+                const farmLat = farm.location.coordinates.latitude || farm.location.latitude;
+                const farmLon = farm.location.coordinates.longitude || farm.location.longitude;
+                
+                if (!farmLat || !farmLon) {
+                    return { ...farm, distance: null };
+                }
+                
+                // Calculate distance using Haversine formula
+                const R = 6371; // Earth's radius in kilometers
+                const dLat = (farmLat - userLocation.latitude) * Math.PI / 180;
+                const dLon = (farmLon - userLocation.longitude) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(userLocation.latitude * Math.PI / 180) * Math.cos(farmLat * Math.PI / 180) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const distance = R * c;
+                
+                return { ...farm, distance: Math.round(distance * 10) / 10 };
+            });
+        }
+        
+        // Filter by selected radius if location is enabled
+        if (showNearbyOnly && userLocation) {
+            result = result.filter(farm => {
+                if (farm.distance === null || farm.distance === undefined) return false;
+                return farm.distance <= selectedRadius;
+            });
+        }
         
         // Sort by distance if user location is available
         if (userLocation) {
@@ -143,7 +201,7 @@ const Marketplace = () => {
         }
         
         setFilteredFarmers(result);
-    }, [farmers, userLocation, addDistanceToFarms]);
+    }, [farmers, userLocation, showNearbyOnly, selectedRadius, keyword]);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -171,6 +229,25 @@ const Marketplace = () => {
         return () => clearInterval(interval);
     }, [keyword, showNearbyOnly, userLocation, selectedFarmerId]);
 
+    const handleDetectLocation = async () => {
+        setIsDetectingLocation(true);
+        try {
+            await getCurrentLocation();
+            setShowNearbyOnly(true);
+            alert('Location detected successfully!');
+        } catch (error) {
+            console.error('Location detection error:', error);
+            alert(error.message || 'Failed to detect location');
+        } finally {
+            setIsDetectingLocation(false);
+        }
+    };
+
+    const handleRadiusChange = (radius) => {
+        setSelectedRadius(radius);
+        setNearbyRadius(radius);
+    };
+
     const handleFilterChange = (nearbyOnly) => {
         setShowNearbyOnly(nearbyOnly);
     };
@@ -182,170 +259,181 @@ const Marketplace = () => {
 
     const handleAddToCart = (product, qty) => {
         if (user?.role !== 'buyer') return; // Prevent farmers from adding to cart
-        addToCart(product, qty);
-        alert(`Added ${qty} ${product.unit} of ${product.name} to cart!`);
+        
+        const added = addToCart(product, qty);
+        
+        // Only show success message if item was actually added
+        if (added) {
+            alert(`Added ${qty} ${product.unit} of ${product.name} to cart!`);
+        }
+        // If not added, the modal will be shown automatically by CartContext
     };
 
     return (
-        <div className='container py-4 marketplace'>
-            <div className='dash-hero' style={{ borderRadius: '12px' }}>
-                        <span className='tag-season'>🌾 Winter Harvest Season 2026</span>
-                        <h1>Direct from Farm to Your Table</h1>
-                        <p>Freshly harvested organic produce delivered directly to businesses and homes within 24 hours.</p>
-                        
-                        <div className='dash-search'>
-                            <input 
-                                type='text' 
-                                placeholder='Search for organic fruits, vegetables, or farms...'
-                                value={keyword}
-                                onChange={(e) => setKeyword(e.target.value)} 
-                            />
-                            <button className='btn btn-primary'>Search Marketplace</button>
-                        </div>
-                        <div className='hero-tags'>
-                            <span>✔ 100% Certified Organic</span>
-                            <span>🚚 Same-day Delivery</span>
-                        </div>
-                    </div>
-
-
-
-                    {!selectedFarmerId ? (
-                        <>
-                            {/* Location Filter */}
-                            <LocationFilter 
-                                onFilterChange={handleFilterChange}
-                                showNearbyOnly={showNearbyOnly}
-                                setShowNearbyOnly={setShowNearbyOnly}
-                            />
-
-                            {/* Map Toggle and Status */}
-                            <div className='map-toggle-section' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className='marketplace-simple'>
+            {/* Simple Search Bar */}
+            <div className='simple-search-container'>
+                <div className='simple-search-box'>
+                    <FaSearch className='search-icon' />
+                    <input 
+                        type='text' 
+                        placeholder='Search for organic fruits, vegetables, or farms...'
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                        className='simple-search-input'
+                    />
+                </div>
+                
+                {/* Location Filter */}
+                <div className='location-filter-simple'>
+                    {!showNearbyOnly ? (
+                        <button 
+                            className='location-btn'
+                            onClick={handleDetectLocation}
+                            disabled={isDetectingLocation || isLoadingLocation}
+                        >
+                            <FaLocationArrow />
+                            {isDetectingLocation || isLoadingLocation 
+                                ? 'Detecting Location...' 
+                                : 'Detect My Location'
+                            }
+                        </button>
+                    ) : (
+                        <div className='location-active-container'>
+                            <div className='location-detected'>
+                                <div className='location-icon-wrapper'>
+                                    <FaMapMarkerAlt />
+                                </div>
+                                <div className='location-info'>
+                                    <span className='location-label'>Your Location</span>
+                                    <span className='location-name'>{locationName || 'Location Detected'}</span>
+                                </div>
                                 <button 
-                                    className={`btn ${showMap ? 'btn-primary' : 'btn-outline'}`}
-                                    onClick={() => setShowMap(!showMap)}
+                                    className='change-location-btn'
+                                    onClick={() => setShowNearbyOnly(false)}
+                                    title='Change location'
                                 >
-                                    <FaMap style={{ marginRight: '0.5rem' }} />
-                                    {showMap ? 'Hide Map' : 'Show Map'}
+                                    ✕
                                 </button>
-                                {showNearbyOnly && userLocation && (
-                                    <span className='filter-status' style={{ color: 'var(--color-primary)', fontWeight: '600', fontSize: '0.9rem', padding: '0.5rem 1rem', background: 'rgba(58, 125, 68, 0.1)', borderRadius: '20px', border: '1px solid rgba(58, 125, 68, 0.2)' }}>
-                                        Showing {filteredFarmers.length} farms nearby
-                                    </span>
-                                )}
                             </div>
+                            
+                            <div className='radius-options'>
+                                <span className='radius-label'>Search Radius:</span>
+                                <button 
+                                    className={`radius-btn ${selectedRadius === 5 ? 'active' : ''}`}
+                                    onClick={() => handleRadiusChange(5)}
+                                >
+                                    5 km
+                                </button>
+                                <button 
+                                    className={`radius-btn ${selectedRadius === 10 ? 'active' : ''}`}
+                                    onClick={() => handleRadiusChange(10)}
+                                >
+                                    10 km
+                                </button>
+                                <button 
+                                    className={`radius-btn ${selectedRadius === 20 ? 'active' : ''}`}
+                                    onClick={() => handleRadiusChange(20)}
+                                >
+                                    20 km
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
 
-                            {/* Farm Map */}
-                            {showMap && (
-                                <FarmMap 
-                                    farms={filteredFarmers}
-                                    userLocation={userLocation}
-                                    onFarmSelect={handleFarmSelect}
-                                    selectedFarm={selectedFarm}
-                                />
-                            )}
-
-                            <div className='farms-section mt-5'>
-                                <div className='section-header mb-4 d-flex justify-content-between align-items-center'>
-                                    <h2>{keyword ? `Farms supplying "${keyword}"` : 'Explore Local Farms'}</h2>
+            {/* Content Area */}
+            <div className='container py-4'>
+                {!selectedFarmerId ? (
+                    <div className='farms-section'>
+                        {keyword && keyword.trim() && (
+                            <div className='search-header'>
+                                <div>
+                                    <h2>Search results for "{keyword}"</h2>
+                                    <p className='results-count'>{filteredFarmers?.length || 0} {filteredFarmers?.length === 1 ? 'farm' : 'farms'} found</p>
+                                </div>
+                                <button className='clear-btn' onClick={() => setKeyword('')}>
+                                    Clear Search
+                                </button>
+                            </div>
+                        )}
+                        
+                        {showNearbyOnly && userLocation && filteredFarmers && (
+                            <div className='location-status'>
+                                <FaMapMarkerAlt />
+                                <span>Found {filteredFarmers.length} {filteredFarmers.length === 1 ? 'farm' : 'farms'} within {selectedRadius} km</span>
+                            </div>
+                        )}
+                        
+                        <div className='farms-grid'>
+                            {!filteredFarmers || filteredFarmers.length === 0 ? (
+                                <div className='no-results'>
+                                    <p>No farms found{keyword ? ` matching "${keyword}"` : ''}.</p>
                                     {keyword && (
-                                        <button className='btn btn-sm btn-outline-danger' onClick={() => setKeyword('')}>
-                                            Clear Search/Category
+                                        <button className='clear-search-btn' onClick={() => setKeyword('')}>
+                                            Clear search and show all farms
                                         </button>
                                     )}
                                 </div>
-                                <div className='farms-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '2rem' }}>
-                                    {filteredFarmers.length === 0 ? (
-                                        <p className='text-gray'>
-                                            {showNearbyOnly 
-                                                ? 'No farms found in your area. Try increasing the search radius or browse all farms.'
-                                                : 'No farms found handling this category.'
-                                            }
-                                        </p>
-                                    ) : (
-                                        filteredFarmers.map(farmer => (
-                                            <div className='farm-card' key={farmer._id} onClick={() => setSelectedFarmerId(farmer._id)} style={{cursor: 'pointer', border: selectedFarmerId === farmer._id ? '2px solid var(--color-primary)' : '', overflow: 'hidden'}}>
-                                                <div className='farm-image' style={{ position: 'relative' }}>
-                                                    {farmer.farmImage ? (
-                                                        <img src={farmer.farmImage} alt={farmer.farmName || farmer.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-                                                    ) : (
-                                                        <div className='farm-placeholder' style={{width: '100%', height: '180px', background: 'linear-gradient(135deg, var(--color-sage-light) 0%, var(--color-sage) 50%, var(--color-primary-light) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', color: 'var(--color-white)'}}>
-                                                            {farmer.farmName ? farmer.farmName.substring(0,2).toUpperCase() : 'FF'}
-                                                        </div>
-                                                    )}
-                                                    {farmer.distance !== null && farmer.distance !== undefined && (
-                                                        <div className='distance-badge' style={{ position: 'absolute', top: '1rem', left: '1rem', background: 'linear-gradient(135deg, var(--color-accent) 0%, #F4D03F 100%)', color: 'var(--color-text-dark)', padding: '0.25rem 0.75rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700', boxShadow: '0 2px 6px rgba(218, 165, 32, 0.3)', zIndex: 3 }}>
-                                                            {farmer.distance}km away
-                                                        </div>
-                                                    )}
-                                                    <div className='farm-logo-sm' style={{ position: 'absolute', bottom: '-25px', left: '20px', width: '60px', height: '60px', fontSize: '1.2rem', background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', fontWeight: 'bold' }}>{farmer.farmName ? farmer.farmName.substring(0,2).toUpperCase() : 'FF'}</div>
+                            ) : (
+                                filteredFarmers.map(farmer => (
+                                    <div className='farm-card-simple' key={farmer._id} onClick={() => setSelectedFarmerId(farmer._id)}>
+                                        <div className='farm-image-simple'>
+                                            {farmer.farmImage ? (
+                                                <img src={farmer.farmImage} alt={farmer.farmName || farmer.name} />
+                                            ) : (
+                                                <div className='farm-placeholder-simple'>
+                                                    {farmer.farmName ? farmer.farmName.substring(0,2).toUpperCase() : 'FF'}
                                                 </div>
-                                                <div className='farm-info' style={{ padding: '3rem 1.5rem 1.5rem'}}>
-                                                    <h4 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>{farmer.farmName || farmer.name}</h4>
-                                                    <div className='farmer-location' style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-light)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                                                        <FaMapMarkerAlt />
-                                                        <span>
-                                                            {farmer.location?.city && farmer.location?.state 
-                                                                ? `${farmer.location.city}, ${farmer.location.state}`
-                                                                : farmer.location?.address || 'Local Farm'
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                    <div className='rating' style={{ marginBottom: '1rem', color: '#6b7280' }}>
-                                                        <span className='stars' style={{ color: '#fbbf24', marginRight: '5px' }}>
-                                                            <FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star'/><FaStar className='star' style={{color:'#e0e0e0'}}/>
-                                                        </span>
-                                                        4.5 Reviews
-                                                    </div>
-                                                    <p style={{ fontSize: '1rem', marginBottom: '1.5rem', color: '#4b5563', lineHeight: '1.5' }}>{farmer.location?.address || 'Local organic community farm. Committed to sustainable and fresh harvests every season.'}</p>
-                                                    <button className='btn btn-outline-primary btn-full' style={{borderRadius:'8px', padding: '0.75rem', fontWeight: 'bold'}}>View Farm Products</button>
+                                            )}
+                                            {farmer.distance !== null && farmer.distance !== undefined && (
+                                                <div className='distance-badge-simple'>
+                                                    {farmer.distance} km
                                                 </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </>
-                    ) : (
-                         <div className='products-section mt-5'>
-                            <div className='section-header' style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                                <h3>Showing products from Farm</h3>
-                                <div style={{display:'flex', gap:'0.5rem'}}>
-                                    <button className='btn btn-sm btn-outline-danger' onClick={() => setSelectedFarmerId('')}>
-                                        Back to Farms
-                                    </button>
-                                    <button 
-                                        className={`btn btn-sm ${showMap ? 'btn-primary' : 'btn-outline'}`}
-                                        onClick={() => setShowMap(!showMap)}
-                                    >
-                                        <FaMap style={{ marginRight: '0.25rem' }} />
-                                        {showMap ? 'Hide Map' : 'Show Map'}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Show map for selected farm */}
-                            {showMap && selectedFarm && (
-                                <FarmMap 
-                                    farms={[selectedFarm]}
-                                    userLocation={userLocation}
-                                    onFarmSelect={handleFarmSelect}
-                                    selectedFarm={selectedFarm}
-                                />
+                                            )}
+                                        </div>
+                                        <div className='farm-info-simple'>
+                                            <h3>{farmer.farmName || farmer.name}</h3>
+                                            <p className='farm-location-simple'>
+                                                <FaMapMarkerAlt />
+                                                {farmer.location?.city && farmer.location?.state 
+                                                    ? `${farmer.location.city}, ${farmer.location.state}`
+                                                    : 'Local Farm'
+                                                }
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
                             )}
-                            
-                            <div className='product-grid' style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.5rem' }}>
-                                {products.length === 0 ? <p>No products found based on your filters.</p> : products.map((product) => (
+                        </div>
+                    </div>
+                ) : (
+                    <div className='products-section'>
+                        <div className='products-header'>
+                            <h2>Farm Products</h2>
+                            <button className='back-btn' onClick={() => setSelectedFarmerId('')}>
+                                ← Back to Farms
+                            </button>
+                        </div>
+                        
+                        <div className='product-grid-simple'>
+                            {!products || products.length === 0 ? (
+                                <p className='no-results'>No products found.</p>
+                            ) : (
+                                products.map((product) => (
                                     <ProductItem 
                                         key={product._id} 
                                         product={product} 
                                         onAddToCart={handleAddToCart} 
                                         showCartButton={user?.role === 'buyer'}
                                     />
-                                ))}
-                            </div>
+                                ))
+                            )}
                         </div>
-                    )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
