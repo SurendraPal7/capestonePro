@@ -2,43 +2,44 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import asyncHandler from 'express-async-handler';
 
-// TEMPORARY MODE: Cash on Delivery
-// This controller has been modified to work without Razorpay until you get correct API keys
-// See URGENT_RAZORPAY_FIX.md for instructions to enable Razorpay
+// RAZORPAY MODE - Set to true only if you don't have correct keys yet
+const TEMP_COD_MODE = true; // Change to false once you have correct Razorpay keys
 
-const TEMP_COD_MODE = true; // Set to false once you have correct Razorpay keys
-
-console.log('\n⚠️  PAYMENT CONTROLLER STATUS:');
+console.log('\n💳 PAYMENT CONTROLLER STATUS:');
 if (TEMP_COD_MODE) {
     console.log('🔄 Running in TEMPORARY COD MODE');
-    console.log('📋 Orders will be placed without online payment');
-    console.log('✅ To enable Razorpay: Update keys in .env and set TEMP_COD_MODE = false\n');
+    console.log('📋 Orders will be placed as Cash on Delivery');
+    console.log('✅ To enable Razorpay: Add correct keys to .env and set TEMP_COD_MODE = false\n');
 } else {
-    console.log('💳 Razorpay payment mode enabled\n');
+    console.log('✅ Razorpay payment mode ENABLED');
+    console.log('💳 Payment methods: Card, UPI, Netbanking, Wallets');
+    console.log('🔍 Razorpay Configuration Check:');
+    console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID ? `${process.env.RAZORPAY_KEY_ID.substring(0, 15)}...` : '❌ NOT SET');
+    console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? '✅ SET (hidden)' : '❌ NOT SET');
 }
 
-// Log environment variables for debugging
-console.log('🔍 Razorpay Configuration Check:');
-console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID ? `${process.env.RAZORPAY_KEY_ID.substring(0, 15)}...` : '❌ NOT SET');
-console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? '✅ SET (hidden)' : '❌ NOT SET');
-
-// Initialize Razorpay instance (only if not in COD mode)
+// Initialize Razorpay instance
 let razorpay;
 if (!TEMP_COD_MODE) {
     try {
+        if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            throw new Error('Razorpay keys not found in environment variables');
+        }
+        
         razorpay = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID,
             key_secret: process.env.RAZORPAY_KEY_SECRET
         });
-        console.log('✅ Razorpay instance initialized successfully\n');
+        console.log('✅ Razorpay instance initialized successfully');
+        console.log('🚀 Ready to accept payments!\n');
     } catch (error) {
         console.error('❌ Failed to initialize Razorpay:', error.message);
-        console.error('Please check your Razorpay credentials in .env file');
-        console.error('📖 Read URGENT_RAZORPAY_FIX.md for help\n');
+        console.error('⚠️  Please add correct Razorpay keys to .env file');
+        console.error('📖 Or set TEMP_COD_MODE = true to use Cash on Delivery\n');
     }
 }
 
-// @desc    Create Razorpay order (or mock order in COD mode)
+// @desc    Create Razorpay order (or COD order in temporary mode)
 // @route   POST /api/payment/create-order
 // @access  Private
 export const createRazorpayOrder = asyncHandler(async (req, res) => {
@@ -51,7 +52,7 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
 
     // TEMPORARY COD MODE
     if (TEMP_COD_MODE) {
-        console.log('📦 Creating mock order for COD (amount:', amount, 'INR)');
+        console.log('📦 Creating COD order (amount:', amount, 'INR)');
         const mockOrder = {
             id: `order_cod_${Date.now()}`,
             amount: Math.round(amount * 100),
@@ -77,13 +78,15 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
 
     try {
         const options = {
-            amount: Math.round(amount * 100),
+            amount: Math.round(amount * 100), // Convert to paise
             currency,
             receipt: receipt || `receipt_${Date.now()}`,
-            payment_capture: 1
+            payment_capture: 1 // Auto capture payment
         };
 
+        console.log('📝 Creating Razorpay order:', options);
         const order = await razorpay.orders.create(options);
+        console.log('✅ Razorpay order created:', order.id);
         
         res.status(200).json({
             success: true,
@@ -93,17 +96,16 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
                 currency: order.currency,
                 receipt: order.receipt
             },
-            key_id: process.env.RAZORPAY_KEY_ID,
-            isCOD: false
+            key_id: process.env.RAZORPAY_KEY_ID
         });
     } catch (error) {
-        console.error('Razorpay order creation error:', error);
+        console.error('❌ Razorpay order creation error:', error);
         res.status(500);
         throw new Error('Failed to create Razorpay order: ' + error.message);
     }
 });
 
-// @desc    Verify Razorpay payment signature (or mock verification in COD mode)
+// @desc    Verify Razorpay payment signature (or mock for COD)
 // @route   POST /api/payment/verify
 // @access  Private
 export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
@@ -111,7 +113,7 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
 
     // TEMPORARY COD MODE
     if (TEMP_COD_MODE) {
-        console.log('✅ Mock payment verification for COD');
+        console.log('✅ COD order verification (mock)');
         return res.status(200).json({
             success: true,
             message: 'Order placed as Cash on Delivery',
@@ -135,14 +137,15 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
             .digest('hex');
 
         if (razorpay_signature === expectedSign) {
+            console.log('✅ Payment verified successfully:', razorpay_payment_id);
             res.status(200).json({
                 success: true,
                 message: 'Payment verified successfully',
                 paymentId: razorpay_payment_id,
-                orderId: razorpay_order_id,
-                isCOD: false
+                orderId: razorpay_order_id
             });
         } else {
+            console.error('❌ Invalid payment signature');
             res.status(400);
             throw new Error('Invalid payment signature');
         }
@@ -153,7 +156,7 @@ export const verifyRazorpayPayment = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Get Razorpay key (or COD mode indicator)
+// @desc    Get Razorpay key (or COD indicator)
 // @route   GET /api/payment/key
 // @access  Public
 export const getRazorpayKey = asyncHandler(async (req, res) => {

@@ -102,19 +102,3 @@ uploads/*
 # OS specific files
 .DS_Store
 Thumbs.db
-
-# Test and Debug Scripts
-test*.js
-debug*.js
-verify*.js
-check*.js
-migrate*.js
-reset*.js
-create*.js
-setup*.js
-listModels.js
-
-# Backup Files
-*Backup.js
-*.backup
-*backup.js

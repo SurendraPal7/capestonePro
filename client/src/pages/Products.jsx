@@ -61,8 +61,16 @@ const Products = () => {
     return (
         <DashboardLayout>
             <div className='dash-header-row mb-3'>
-                <button className='btn btn-primary' onClick={() => { setShowForm(!showForm); setEditingProduct(null); }}>
-                    {showForm ? 'Close Form' : '+ Add New Listing'}
+                <button className='btn btn-primary' onClick={() => { 
+                    if (showForm || editingProduct) {
+                        setShowForm(false);
+                        setEditingProduct(null);
+                    } else {
+                        setShowForm(true);
+                        setEditingProduct(null);
+                    }
+                }}>
+                    {(showForm || editingProduct) ? 'Close Form' : '+ Add New Listing'}
                 </button>
             </div>
 
@@ -91,7 +99,17 @@ const Products = () => {
                                 </p>
                                 <p style={{ fontSize:'0.85rem', color:'#6b7280' }}>Available: {new Date(product.availabilityDate).toLocaleDateString()}</p>
                                 <div style={{ display:'flex', gap:'0.5rem', marginTop:'1rem' }}>
-                                    <button className='btn btn-sm btn-outline' style={{ flex:1 }} onClick={() => { setEditingProduct(product); setShowForm(true); }}><FaEdit /> Edit</button>
+                                    <button 
+                                        className='btn btn-sm btn-outline' 
+                                        style={{ flex:1 }} 
+                                        onClick={() => { 
+                                            setEditingProduct(product); 
+                                            setShowForm(false); // Close add form if open
+                                            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top to see form
+                                        }}
+                                    >
+                                        <FaEdit /> Edit
+                                    </button>
                                     <button className='btn btn-sm' style={{ flex:1, border:'1px solid #fee2e2', color:'#dc2626', background:'transparent' }} onClick={() => handleDelete(product._id)}><FaTrash /> Delete</button>
                                 </div>
                             </div>

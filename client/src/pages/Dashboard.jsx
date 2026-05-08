@@ -206,8 +206,16 @@ const Dashboard = () => {
                     <Topbar />
                     <div className='seller-dashboard-container'>
                         <div className='dash-header-row'>
-                            <button className='btn btn-primary' onClick={() => { setShowForm(!showForm); setEditingProduct(null); }}>
-                                {showForm ? 'Close Form' : '+ Add New Listing'}
+                            <button className='btn btn-primary' onClick={() => { 
+                                if (showForm || editingProduct) {
+                                    setShowForm(false);
+                                    setEditingProduct(null);
+                                } else {
+                                    setShowForm(true);
+                                    setEditingProduct(null);
+                                }
+                            }}>
+                                {(showForm || editingProduct) ? 'Close Form' : '+ Add New Listing'}
                             </button>
                         </div>
 
@@ -304,7 +312,19 @@ const Dashboard = () => {
                                                 <td className='font-weight-bold'>₹{product.price}</td>
                                                 <td><span className={product.quantity > 10 ? 'text-green font-weight-bold' : 'text-red font-weight-bold'}>{product.quantity > 10 ? 'In Stock' : 'Low Stock'}</span></td>
                                                 <td className='text-right'>
-                                                    <button className='btn btn-text text-blue' onClick={() => { setEditingProduct(product); setShowForm(true); }}>Edit</button> | 
+                                                    <button 
+                                                        className='btn btn-text text-blue' 
+                                                        onClick={() => { 
+                                                            console.log('Edit clicked for product:', product);
+                                                            console.log('Product location:', product.location);
+                                                            console.log('Product availabilityDate:', product.availabilityDate);
+                                                            setEditingProduct(product); 
+                                                            setShowForm(false); // Close add form if open
+                                                            window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </button> | 
                                                     <button className='btn btn-text text-blue' onClick={() => handleDelete(product._id)}>Delete</button>
                                                 </td>
                                             </tr>

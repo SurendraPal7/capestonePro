@@ -39,37 +39,8 @@ Thumbs.db
 *.sln
 *.sw?
 coverage/
-
-# Setup and Documentation Files (Generated)
-*_SETUP.md
-*_COMPLETE.md
-*_SUMMARY.md
-*_FIX.md
-*_STATUS.md
-GET_*.md
-ADMIN_SETUP_COMPLETE.md
-CHATBOT_COMPLETE_SETUP.md
-CHATBOT_SETUP.md
-EMAIL_NOTIFICATION_SUMMARY.md
-EMAIL_SETUP.md
-GET_GEMINI_API_KEY.md
-RAZORPAY_SETUP.md
-RAZORPAY_IMPLEMENTATION_COMPLETE.md
-URGENT_RAZORPAY_FIX.md
-GET_RAZORPAY_KEYS.md
-PAYMENT_STATUS.md
-
-# Test and Debug Scripts
-server/test*.js
-server/debug*.js
-server/verify*.js
-server/check*.js
-server/migrate*.js
-server/reset*.js
-server/create*.js
-server/setup*.js
-server/listModels.js
-
-# Backup Files
-*Backup.js
-*.backup
+EDIT_BUTTON_FIX.md
+DASHBOARD_EDIT_FIX.md
+EDIT_BUTTON_BLANK_SCREEN_FIX.md
+AUTO_LOCATION_DETECTION.md
+NODEMAILER_IMPLEMENTATION_GUIDE.md

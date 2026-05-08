@@ -19,13 +19,25 @@ const Cart = () => {
         }
     }, [user, navigate]);
 
-    // Load Razorpay script
+    // Load Razorpay script from CDN
     const loadRazorpayScript = () => {
         return new Promise((resolve) => {
+            // Check if already loaded
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+
             const script = document.createElement('script');
             script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
+            script.onload = () => {
+                console.log('✅ Razorpay SDK loaded successfully');
+                resolve(true);
+            };
+            script.onerror = () => {
+                console.error('❌ Failed to load Razorpay SDK');
+                resolve(false);
+            };
             document.body.appendChild(script);
         });
     };
@@ -60,18 +72,12 @@ const Cart = () => {
         }, {});
 
         try {
-            // Load Razorpay script
-            const scriptLoaded = await loadRazorpayScript();
-            if (!scriptLoaded) {
-                alert('Failed to load Razorpay SDK. Please check your internet connection.');
-                setIsProcessing(false);
-                return;
-            }
-
             // Calculate total for all orders
             const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+            console.log('💰 Total amount:', totalAmount, 'INR');
 
-            // Create Razorpay order
+            // Create order on backend
+            console.log('📝 Creating order...');
             const { data: paymentData } = await axios.post(
                 '/api/payment/create-order',
                 {
@@ -82,7 +88,7 @@ const Cart = () => {
                 config
             );
 
-            // Check if in COD mode (temporary)
+            // Check if in COD mode
             if (paymentData.isCOD) {
                 console.log('📦 COD Mode: Placing order without payment');
                 
@@ -93,11 +99,11 @@ const Cart = () => {
 
                     const orderData = {
                         orderItems: items,
-                        shippingAddress: user.location || {
-                            address: user.address || '123 Main St',
-                            city: user.city || 'City',
-                            state: user.state || 'State',
-                            postalCode: user.zip || '000000',
+                        shippingAddress: {
+                            address: user.location?.address || user.address || '123 Main St',
+                            city: user.location?.city || user.city || 'City',
+                            state: user.location?.state || user.state || 'State',
+                            postalCode: user.location?.postalCode || user.location?.zip || user.zip || '000000',
                             country: 'India'
                         },
                         paymentMethod: 'Cash on Delivery',
@@ -108,24 +114,59 @@ const Cart = () => {
                     await axios.post('/api/orders', orderData, config);
                 }
 
-                alert('Orders placed successfully! Payment: Cash on Delivery');
+                alert('✅ Orders placed successfully!\nPayment Method: Cash on Delivery');
                 clearCart();
                 navigate('/orders');
                 setIsProcessing(false);
                 return;
             }
 
-            // Razorpay options
+            // RAZORPAY MODE - Load script and open checkout
+            console.log('📦 Loading Razorpay SDK...');
+            const scriptLoaded = await loadRazorpayScript();
+            if (!scriptLoaded) {
+                alert('Failed to load Razorpay payment gateway. Please check your internet connection and try again.');
+                setIsProcessing(false);
+                return;
+            }
+
+            console.log('✅ Razorpay order created:', paymentData.order.id);
+
+            // Razorpay checkout options with ALL payment methods
             const options = {
-                key: paymentData.key_id,
-                amount: paymentData.order.amount,
+                key: paymentData.key_id, // Razorpay Key ID from backend
+                amount: paymentData.order.amount, // Amount in paise
                 currency: paymentData.order.currency,
                 name: 'FarmDirect',
                 description: 'Fresh Farm Produce Order',
-                order_id: paymentData.order.id,
+                order_id: paymentData.order.id, // Order ID from backend
+                
+                // Enable all payment methods: Card, UPI, Netbanking, Wallets
+                config: {
+                    display: {
+                        blocks: {
+                            banks: {
+                                name: 'Pay using',
+                                instruments: [
+                                    { method: 'card' },      // Credit/Debit Cards
+                                    { method: 'upi' },       // UPI (Google Pay, PhonePe, etc.)
+                                    { method: 'netbanking' }, // Net Banking
+                                    { method: 'wallet' }     // Wallets (Paytm, PhonePe, etc.)
+                                ]
+                            }
+                        },
+                        sequence: ['block.banks'],
+                        preferences: {
+                            show_default_blocks: true
+                        }
+                    }
+                },
+                
                 handler: async function (response) {
+                    console.log('💳 Payment successful:', response.razorpay_payment_id);
                     try {
-                        // Verify payment
+                        // Verify payment on backend
+                        console.log('🔍 Verifying payment...');
                         await axios.post(
                             '/api/payment/verify',
                             {
@@ -136,18 +177,21 @@ const Cart = () => {
                             config
                         );
 
-                        // Payment verified, create orders
+                        console.log('✅ Payment verified successfully');
+
+                        // Create orders after successful payment
+                        console.log('📦 Creating orders...');
                         for (const farmerId in itemsByFarmer) {
                             const items = itemsByFarmer[farmerId];
                             const farmerTotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
 
                             const orderData = {
                                 orderItems: items,
-                                shippingAddress: user.location || {
-                                    address: user.address || '123 Main St',
-                                    city: user.city || 'City',
-                                    state: user.state || 'State',
-                                    postalCode: user.zip || '000000',
+                                shippingAddress: {
+                                    address: user.location?.address || user.address || '123 Main St',
+                                    city: user.location?.city || user.city || 'City',
+                                    state: user.location?.state || user.state || 'State',
+                                    postalCode: user.location?.postalCode || user.location?.zip || user.zip || '000000',
                                     country: 'India'
                                 },
                                 paymentMethod: 'Razorpay',
@@ -163,37 +207,72 @@ const Cart = () => {
                             await axios.post('/api/orders', orderData, config);
                         }
 
-                        alert('Payment successful! Orders placed successfully!');
+                        console.log('✅ Orders created successfully');
+                        alert('✅ Payment successful! Your orders have been placed.');
                         clearCart();
                         navigate('/orders');
                     } catch (error) {
-                        console.error('Order creation error:', error);
-                        alert('Payment successful but order creation failed. Please contact support.');
+                        console.error('❌ Order creation error:', error);
+                        alert('Payment successful but order creation failed. Please contact support with payment ID: ' + response.razorpay_payment_id);
                     } finally {
                         setIsProcessing(false);
                     }
                 },
+                
                 prefill: {
                     name: user.name,
                     email: user.email,
                     contact: user.phone || ''
                 },
-                theme: {
-                    color: '#3a7d44'
+                
+                notes: {
+                    buyer_id: user._id,
+                    total_items: cartItems.length,
+                    order_type: 'farm_produce'
                 },
+                
+                theme: {
+                    color: '#3a7d44', // Green theme matching your app
+                    backdrop_color: 'rgba(0, 0, 0, 0.5)'
+                },
+                
                 modal: {
+                    backdropclose: false, // Prevent closing by clicking outside
+                    escape: true, // Allow ESC key to close
+                    handleback: true, // Handle browser back button
+                    confirm_close: true, // Confirm before closing
                     ondismiss: function () {
+                        console.log('⚠️ Payment cancelled by user');
                         setIsProcessing(false);
-                        alert('Payment cancelled');
-                    }
-                }
+                        alert('Payment cancelled. Your cart items are still saved.');
+                    },
+                    animation: true // Smooth animation
+                },
+                
+                retry: {
+                    enabled: true, // Allow retry on failure
+                    max_count: 3
+                },
+                
+                timeout: 900, // 15 minutes timeout
+                remember_customer: false // Don't save customer details
             };
 
+            console.log('🚀 Opening Razorpay checkout with all payment methods...');
             const razorpay = new window.Razorpay(options);
+            
+            // Open Razorpay checkout immediately
             razorpay.open();
+            
+            // Handle payment failure
+            razorpay.on('payment.failed', function (response) {
+                console.error('❌ Payment failed:', response.error);
+                setIsProcessing(false);
+                alert(`Payment failed: ${response.error.description}\nReason: ${response.error.reason}`);
+            });
         } catch (error) {
-            console.error('Payment error:', error);
-            const message = error.response?.data?.message || 'Error initiating payment';
+            console.error('❌ Payment error:', error);
+            const message = error.response?.data?.message || 'Error initiating payment. Please try again.';
             alert(message);
             setIsProcessing(false);
         }
