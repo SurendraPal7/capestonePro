@@ -25,12 +25,45 @@ const Login = () => {
         setIsLoading(true);
         try {
             await login(email, password);
+            // Success message will be shown by useEffect when user changes
         } catch (error) {
-            alert('Invalid credentials');
+            const errorMsg = error.response?.data?.message || 'Invalid credentials. Please check your email and password.';
+            alert('❌ Login Failed\n\n' + errorMsg);
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Show success message when user logs in
+    useEffect(() => {
+        if (user && !isLoading) {
+            const roleEmoji = user.role === 'farmer' ? '👨‍🌾' : user.role === 'buyer' ? '🛒' : '👤';
+            const roleText = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+            
+            // Show a brief notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #3a7d44 0%, #2d6235 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.innerHTML = `${roleEmoji} Logged in as ${roleText}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+    }, [user, isLoading]);
 
     return (
         <div className='auth-container'>

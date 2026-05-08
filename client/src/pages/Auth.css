@@ -55,6 +55,7 @@
 
 .register-card {
     max-width: 600px;
+    background: transparent !important;
 }
 
 .auth-header {
@@ -513,5 +514,631 @@
         flex-direction: column;
         text-align: center;
         gap: 0.75rem;
+    }
+}
+
+
+/* Register Page Two-Column Layout */
+.register-container .auth-content {
+    max-width: 1400px;
+    gap: 0;
+}
+
+.register-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    width: 100%;
+    background: transparent;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    min-height: 100vh;
+}
+
+/* Left Side - Info Section */
+.register-info-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 4rem 3rem;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+}
+
+.register-info-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(58, 125, 68, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.register-info-content {
+    position: relative;
+    z-index: 2;
+}
+
+.info-header {
+    margin-bottom: 3rem;
+}
+
+.info-logo {
+    width: 70px;
+    height: 70px;
+    background: var(--color-primary);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(58, 125, 68, 0.3);
+}
+
+.info-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: white;
+}
+
+.info-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.85;
+    margin: 0;
+    color: #e0e0e0;
+}
+
+/* Features List */
+.info-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.feature-item {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateX(8px);
+    border-color: rgba(58, 125, 68, 0.3);
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--color-primary);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(58, 125, 68, 0.3);
+}
+
+.feature-content h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.feature-content p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.6;
+    color: #d0d0d0;
+}
+
+/* Stats Section */
+.info-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-item h3 {
+    font-size: 2.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--color-accent) 0%, #f59e0b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-item p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin: 0;
+    color: #d0d0d0;
+}
+
+/* Right Side - Form Section */
+.register-form-section {
+    padding: 2rem 2rem 3rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    background: #fafafa;
+    overflow-y: auto;
+    min-height: 100vh;
+}
+
+.register-form-section .auth-card {
+    box-shadow: none;
+    border: none;
+    max-width: 600px;
+    width: 100%;
+    padding: 0;
+    background: transparent !important;
+}
+
+.register-form-section .auth-card::before {
+    display: none;
+}
+
+.register-form-section .auth-header {
+    margin-bottom: 2rem;
+    text-align: center;
+    background: transparent;
+}
+
+.register-form-section .auth-header h2 {
+    font-size: 1.85rem;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.register-form-section .auth-header p {
+    color: #666;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Role selector improvements */
+.role-selector {
+    margin-bottom: 2rem;
+}
+
+.role-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.role-tab {
+    padding: 1.25rem;
+    border: 2px solid #e5e7eb;
+    background: white;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.role-tab:hover {
+    border-color: var(--color-primary);
+    background: #f9fafb;
+    transform: translateY(-2px);
+}
+
+.role-tab.active {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, rgba(58, 125, 68, 0.1) 0%, rgba(58, 125, 68, 0.05) 100%);
+    box-shadow: 0 4px 12px rgba(58, 125, 68, 0.15);
+}
+
+.role-icon {
+    font-size: 1.75rem;
+    color: var(--color-primary);
+}
+
+.role-tab span {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+.role-tab small {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 400;
+}
+
+/* Form improvements */
+.register-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.register-form .form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 0.9rem;
+}
+
+.register-form .label-icon {
+    color: var(--color-primary);
+    font-size: 0.9rem;
+}
+
+.register-form .input-field {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.register-form .input-field:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(58, 125, 68, 0.1);
+    outline: none;
+    background: white;
+}
+
+.register-form .input-field::placeholder {
+    color: #9ca3af;
+}
+
+.register-form select.input-field {
+    background: white;
+}
+
+.register-form textarea.input-field {
+    background: white;
+}
+
+/* Button improvements */
+.register-form .btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    box-shadow: 0 4px 12px rgba(58, 125, 68, 0.3);
+}
+
+.register-form .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(58, 125, 68, 0.4);
+}
+
+.register-form .btn-outline {
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    background: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.register-form .btn-outline:hover {
+    background: var(--color-primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .register-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .register-info-section {
+        display: none;
+    }
+    
+    .register-form-section {
+        max-height: none;
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-content {
+        padding: 1rem;
+    }
+    
+    .register-form-section .auth-card {
+        padding: 1.5rem;
+    }
+    
+    .role-tabs {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .register-form-section {
+        padding: 1rem;
+    }
+    
+    .register-form-section .auth-card {
+        padding: 1rem;
+    }
+}
+
+
+/* Login notification animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Login page improvements */
+.auth-footer p {
+    margin-bottom: 0.5rem;
+}
+
+.auth-footer .auth-link:hover {
+    background: var(--color-primary-dark) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 125, 68, 0.3);
+}
+
+
+/* Modern Toggle Switch for Role Selection */
+.role-toggle-container {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.role-toggle-label {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+/* Compact Toggle at Top */
+.role-toggle-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.role-toggle-switch-compact {
+    position: relative;
+    display: inline-flex;
+    background: #f3f4f6;
+    border-radius: 50px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-option-compact {
+    position: relative;
+    z-index: 2;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #666;
+    min-width: 110px;
+    justify-content: center;
+}
+
+.toggle-option-compact.active {
+    color: white;
+}
+
+.toggle-icon-compact {
+    font-size: 1rem;
+}
+
+.toggle-slider-compact {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: calc(50% - 4px);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 3px 10px rgba(58, 125, 68, 0.4);
+    z-index: 1;
+}
+
+.toggle-slider-compact.left {
+    left: 4px;
+}
+
+.toggle-slider-compact.right {
+    left: calc(50%);
+}
+
+/* Hover effects */
+.toggle-option-compact:hover:not(.active) {
+    color: var(--color-primary);
+    transform: scale(1.02);
+}
+
+.role-toggle-switch {
+    position: relative;
+    display: inline-flex;
+    background: #f3f4f6;
+    border-radius: 50px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-option {
+    position: relative;
+    z-index: 2;
+    padding: 0.875rem 2rem;
+    border: none;
+    background: transparent;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #666;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.toggle-option.active {
+    color: white;
+}
+
+.toggle-icon {
+    font-size: 1.1rem;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: calc(50% - 4px);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(58, 125, 68, 0.4);
+    z-index: 1;
+}
+
+.toggle-slider.left {
+    left: 4px;
+}
+
+.toggle-slider.right {
+    left: calc(50%);
+}
+
+.role-description {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    background: rgba(58, 125, 68, 0.08);
+    border-radius: 12px;
+    display: inline-block;
+}
+
+/* Hover effects */
+.toggle-option:hover:not(.active) {
+    color: var(--color-primary);
+}
+
+/* Animation for toggle */
+@keyframes slideToggle {
+    0% {
+        transform: scale(0.95);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.toggle-slider {
+    animation: slideToggle 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .role-toggle-top {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .toggle-option {
+        padding: 0.75rem 1.5rem;
+        min-width: 120px;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-icon {
+        font-size: 1rem;
+    }
+    
+    .toggle-option-compact {
+        padding: 0.65rem 1.25rem;
+        min-width: 95px;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-icon-compact {
+        font-size: 0.9rem;
     }
 }

@@ -39,7 +39,13 @@ const ProductForm = ({ onProductAdded, setEditingProduct, product = null }) => {
             if (setEditingProduct) setEditingProduct(null);
         } catch (error) {
             console.error(error);
-            alert('Error saving product');
+            const errorMessage = error.response?.data?.message || 'Error saving product';
+            
+            if (error.response?.status === 403) {
+                alert('Access denied. Please make sure you are logged in as a farmer.');
+            } else {
+                alert(errorMessage);
+            }
         }
     };
 

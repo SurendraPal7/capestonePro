@@ -80,9 +80,21 @@ export const registerUser = asyncHandler(async (req, res) => {
 export const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
+    console.log('🔐 Login attempt:', email);
+
     const user = await User.findOne({ email });
 
-    if (user && (await user.matchPassword(password))) {
+    if (!user) {
+        console.log('❌ User not found:', email);
+        res.status(401);
+        throw new Error('Invalid credentials - user not found');
+    }
+
+    const isPasswordMatch = await user.matchPassword(password);
+    console.log('🔑 Password match:', isPasswordMatch);
+
+    if (user && isPasswordMatch) {
+        console.log('✅ Login successful:', email);
         res.json({
             _id: user.id,
             name: user.name,
@@ -91,8 +103,9 @@ export const loginUser = asyncHandler(async (req, res) => {
             token: generateToken(user._id),
         });
     } else {
+        console.log('❌ Invalid password for:', email);
         res.status(401);
-        throw new Error('Invalid credentials');
+        throw new Error('Invalid credentials - wrong password');
     }
 });
 

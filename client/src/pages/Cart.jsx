@@ -10,6 +10,7 @@ const Cart = () => {
     const { cartItems, removeFromCart, clearCart, updateCartItemQty } = useContext(CartContext);
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Redirect farmers to dashboard since they shouldn't access cart
     useEffect(() => {
@@ -17,6 +18,17 @@ const Cart = () => {
             navigate('/dashboard');
         }
     }, [user, navigate]);
+
+    // Load Razorpay script
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
 
     const handleQuantityChange = (productId, newQty, maxQty) => {
         if (newQty < 1) return;
@@ -33,6 +45,9 @@ const Cart = () => {
             return;
         }
 
+        if (isProcessing) return;
+        setIsProcessing(true);
+
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -45,32 +60,142 @@ const Cart = () => {
         }, {});
 
         try {
-            for (const farmerId in itemsByFarmer) {
-                const items = itemsByFarmer[farmerId];
-                const totalPrice = items.reduce((acc, item) => acc + item.price * item.qty, 0);
-
-                const orderData = {
-                    orderItems: items,
-                    shippingAddress: { 
-                        address: '123 Main St', 
-                        city: 'City', 
-                        postalCode: '11111', 
-                        country: 'India' 
-                    },
-                    paymentMethod: 'Cash',
-                    totalPrice,
-                    farmerId
-                };
-
-                await axios.post('/api/orders', orderData, config);
+            // Load Razorpay script
+            const scriptLoaded = await loadRazorpayScript();
+            if (!scriptLoaded) {
+                alert('Failed to load Razorpay SDK. Please check your internet connection.');
+                setIsProcessing(false);
+                return;
             }
-            alert('Orders placed successfully!');
-            clearCart();
-            navigate('/orders');
+
+            // Calculate total for all orders
+            const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+            // Create Razorpay order
+            const { data: paymentData } = await axios.post(
+                '/api/payment/create-order',
+                {
+                    amount: totalAmount,
+                    currency: 'INR',
+                    receipt: `order_${Date.now()}`
+                },
+                config
+            );
+
+            // Check if in COD mode (temporary)
+            if (paymentData.isCOD) {
+                console.log('📦 COD Mode: Placing order without payment');
+                
+                // Create orders directly without payment
+                for (const farmerId in itemsByFarmer) {
+                    const items = itemsByFarmer[farmerId];
+                    const farmerTotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+                    const orderData = {
+                        orderItems: items,
+                        shippingAddress: user.location || {
+                            address: user.address || '123 Main St',
+                            city: user.city || 'City',
+                            state: user.state || 'State',
+                            postalCode: user.zip || '000000',
+                            country: 'India'
+                        },
+                        paymentMethod: 'Cash on Delivery',
+                        totalPrice: farmerTotal,
+                        farmerId
+                    };
+
+                    await axios.post('/api/orders', orderData, config);
+                }
+
+                alert('Orders placed successfully! Payment: Cash on Delivery');
+                clearCart();
+                navigate('/orders');
+                setIsProcessing(false);
+                return;
+            }
+
+            // Razorpay options
+            const options = {
+                key: paymentData.key_id,
+                amount: paymentData.order.amount,
+                currency: paymentData.order.currency,
+                name: 'FarmDirect',
+                description: 'Fresh Farm Produce Order',
+                order_id: paymentData.order.id,
+                handler: async function (response) {
+                    try {
+                        // Verify payment
+                        await axios.post(
+                            '/api/payment/verify',
+                            {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            },
+                            config
+                        );
+
+                        // Payment verified, create orders
+                        for (const farmerId in itemsByFarmer) {
+                            const items = itemsByFarmer[farmerId];
+                            const farmerTotal = items.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+                            const orderData = {
+                                orderItems: items,
+                                shippingAddress: user.location || {
+                                    address: user.address || '123 Main St',
+                                    city: user.city || 'City',
+                                    state: user.state || 'State',
+                                    postalCode: user.zip || '000000',
+                                    country: 'India'
+                                },
+                                paymentMethod: 'Razorpay',
+                                totalPrice: farmerTotal,
+                                farmerId,
+                                paymentInfo: {
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                }
+                            };
+
+                            await axios.post('/api/orders', orderData, config);
+                        }
+
+                        alert('Payment successful! Orders placed successfully!');
+                        clearCart();
+                        navigate('/orders');
+                    } catch (error) {
+                        console.error('Order creation error:', error);
+                        alert('Payment successful but order creation failed. Please contact support.');
+                    } finally {
+                        setIsProcessing(false);
+                    }
+                },
+                prefill: {
+                    name: user.name,
+                    email: user.email,
+                    contact: user.phone || ''
+                },
+                theme: {
+                    color: '#3a7d44'
+                },
+                modal: {
+                    ondismiss: function () {
+                        setIsProcessing(false);
+                        alert('Payment cancelled');
+                    }
+                }
+            };
+
+            const razorpay = new window.Razorpay(options);
+            razorpay.open();
         } catch (error) {
-            console.error(error);
-            const message = error.response?.data?.message || 'Error placing order';
+            console.error('Payment error:', error);
+            const message = error.response?.data?.message || 'Error initiating payment';
             alert(message);
+            setIsProcessing(false);
         }
     };
 
@@ -193,8 +318,8 @@ const Cart = () => {
                         <span className='summary-value'>₹{totalPrice.toLocaleString()}</span>
                     </div>
 
-                    <button className='checkout-btn' onClick={placeOrder}>
-                        Proceed to Checkout
+                    <button className='checkout-btn' onClick={placeOrder} disabled={isProcessing}>
+                        {isProcessing ? 'Processing...' : 'Proceed to Payment'}
                     </button>
 
                     <button className='continue-shopping-btn' onClick={() => navigate('/marketplace')}>

@@ -2,6 +2,14 @@ import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
+import User from '../models/User.js';
+import { 
+    sendNewOrderEmail, 
+    sendOrderConfirmedEmail, 
+    sendOrderShippedEmail, 
+    sendOrderDeliveredEmail,
+    sendOrderCancelledEmail 
+} from '../utils/emailService.js';
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -13,7 +21,8 @@ export const addOrderItems = asyncHandler(async (req, res) => {
             shippingAddress,
             paymentMethod,
             totalPrice,
-            farmerId
+            farmerId,
+            paymentInfo
         } = req.body;
 
         if (!farmerId || !mongoose.Types.ObjectId.isValid(farmerId)) {
@@ -56,10 +65,42 @@ export const addOrderItems = asyncHandler(async (req, res) => {
                 shippingAddress,
                 paymentMethod,
                 totalPrice,
-                status: 'Pending'
+                status: 'Pending',
+                isPaid: paymentInfo ? true : false,
+                paidAt: paymentInfo ? Date.now() : undefined,
+                paymentResult: paymentInfo ? {
+                    id: paymentInfo.razorpay_payment_id,
+                    status: 'completed',
+                    razorpay_order_id: paymentInfo.razorpay_order_id,
+                    razorpay_signature: paymentInfo.razorpay_signature
+                } : undefined
             });
 
             const createdOrder = await order.save();
+
+            // Send email notification to farmer
+            try {
+                const farmer = await User.findById(farmerId);
+                const buyer = await User.findById(req.user._id);
+                
+                if (farmer && buyer) {
+                    await sendNewOrderEmail(
+                        farmer.email,
+                        farmer.name,
+                        buyer.name,
+                        {
+                            orderId: createdOrder._id.toString().slice(-8).toUpperCase(),
+                            totalPrice: totalPrice,
+                            itemCount: orderItems.length,
+                            address: `${shippingAddress.address}, ${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.postalCode}`
+                        }
+                    );
+                    console.log('📧 New order email sent to farmer');
+                }
+            } catch (emailError) {
+                console.error('Email notification failed:', emailError);
+                // Don't fail the order creation if email fails
+            }
 
             res.status(201).json(createdOrder);
         }
@@ -123,21 +164,72 @@ export const updateOrderToPaid = asyncHandler(async (req, res) => {
 // @route   PUT /api/orders/:id/status
 // @access  Private/Farmer
 export const updateOrderStatus = asyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id)
+        .populate('buyer', 'name email')
+        .populate('farmer', 'name email farmName');
 
     if (order) {
-        if (order.farmer.toString() !== req.user._id.toString()) {
+        if (order.farmer._id.toString() !== req.user._id.toString()) {
             res.status(401);
             throw new Error('Not authorized');
         }
 
+        const oldStatus = order.status;
         order.status = req.body.status || order.status;
+        
         if (req.body.status === 'Delivered') {
             order.isDelivered = true;
             order.deliveredAt = Date.now();
         }
 
         const updatedOrder = await order.save();
+
+        // Send email notification to buyer based on status change
+        try {
+            const orderDetails = {
+                orderId: order._id.toString().slice(-8).toUpperCase(),
+                totalPrice: order.totalPrice,
+                address: `${order.shippingAddress.address}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}`
+            };
+
+            if (req.body.status === 'Confirmed' && oldStatus !== 'Confirmed') {
+                await sendOrderConfirmedEmail(
+                    order.buyer.email,
+                    order.buyer.name,
+                    order.farmer.farmName || order.farmer.name,
+                    orderDetails
+                );
+                console.log('📧 Order confirmed email sent to buyer');
+            } else if (req.body.status === 'Shipped' && oldStatus !== 'Shipped') {
+                await sendOrderShippedEmail(
+                    order.buyer.email,
+                    order.buyer.name,
+                    order.farmer.farmName || order.farmer.name,
+                    orderDetails
+                );
+                console.log('📧 Order shipped email sent to buyer');
+            } else if (req.body.status === 'Delivered' && oldStatus !== 'Delivered') {
+                await sendOrderDeliveredEmail(
+                    order.buyer.email,
+                    order.buyer.name,
+                    order.farmer.farmName || order.farmer.name,
+                    orderDetails
+                );
+                console.log('📧 Order delivered email sent to buyer');
+            } else if (req.body.status === 'Cancelled' && oldStatus !== 'Cancelled') {
+                await sendOrderCancelledEmail(
+                    order.buyer.email,
+                    order.buyer.name,
+                    order.farmer.farmName || order.farmer.name,
+                    orderDetails
+                );
+                console.log('📧 Order cancelled email sent to buyer');
+            }
+        } catch (emailError) {
+            console.error('Email notification failed:', emailError);
+            // Don't fail the status update if email fails
+        }
+
         res.json(updatedOrder);
     } else {
         res.status(404);

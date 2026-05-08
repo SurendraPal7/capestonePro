@@ -155,13 +155,46 @@ const Dashboard = () => {
         }
     };
 
-    const salesData = [
-        { name: 'Oct 27', sales: 150 },
-        { name: 'Nov 18', sales: 400 },
-        { name: 'Nov 21', sales: 250 },
-        { name: 'Dec 07', sales: 650 },
-        { name: 'Jan 19', sales: 1000 },
-    ];
+    // Calculate real sales data from orders
+    const calculateSalesData = () => {
+        if (orders.length === 0) {
+            return [
+                { name: 'No Data', sales: 0 }
+            ];
+        }
+
+        // Group orders by date
+        const salesByDate = {};
+        const today = new Date();
+        
+        // Initialize last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateKey = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            salesByDate[dateKey] = 0;
+        }
+
+        // Sum up sales for each date
+        orders.forEach(order => {
+            const orderDate = new Date(order.createdAt);
+            const dateKey = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            // Only include orders from last 7 days
+            const daysDiff = Math.floor((today - orderDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff <= 6 && salesByDate.hasOwnProperty(dateKey)) {
+                salesByDate[dateKey] += order.totalPrice || order.totalAmount || 0;
+            }
+        });
+
+        // Convert to array format for chart
+        return Object.entries(salesByDate).map(([name, sales]) => ({
+            name,
+            sales: Math.round(sales)
+        }));
+    };
+
+    const salesData = calculateSalesData();
 
     if (loading || !user) return <div className='container'>Loading...</div>;
 
@@ -229,19 +262,32 @@ const Dashboard = () => {
                         <div className='dashboard-section card'>
                             <div className='section-header'>
                                 <h3>Sales Overview</h3>
-                                <button className='btn btn-sm btn-outline'>This Week &gt;</button>
+                                <button className='btn btn-sm btn-outline'>Last 7 Days</button>
                             </div>
-                            <div className='chart-container'>
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} dy={10} />
-                                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} dx={-10} />
-                                        <Tooltip />
-                                        <Area type="monotone" dataKey="sales" stroke="#3b82f6" fill="#93c5fd" fillOpacity={0.6} strokeWidth={2} />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
+                            {orders.length === 0 ? (
+                                <div className='chart-container' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '250px', color: '#6b7280' }}>
+                                    <div style={{ textAlign: 'center' }}>
+                                        <FaBox style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.3 }} />
+                                        <p style={{ fontSize: '1.1rem', fontWeight: '500' }}>No sales data yet</p>
+                                        <p style={{ fontSize: '0.9rem', opacity: 0.7 }}>Your sales will appear here once you receive orders</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className='chart-container'>
+                                    <ResponsiveContainer width="100%" height={250}>
+                                        <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} dy={10} />
+                                            <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#6b7280'}} dx={-10} />
+                                            <Tooltip 
+                                                formatter={(value) => [`₹${value}`, 'Sales']}
+                                                contentStyle={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                                            />
+                                            <Area type="monotone" dataKey="sales" stroke="#3b82f6" fill="#93c5fd" fillOpacity={0.6} strokeWidth={2} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            )}
                         </div>
 
                         <div className='dashboard-section card'>
