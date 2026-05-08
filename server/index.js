@@ -15,8 +15,19 @@ connectDB();
 
 const app = express();
 
+// CORS Configuration
+const corsOptions = {
+    origin: [
+        'http://localhost:5173',           // Local development
+        'http://localhost:3000',           // Alternative local port
+        'https://capestone-pro.vercel.app' // Your Vercel deployment
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Serve static files from 'uploads' folder
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
