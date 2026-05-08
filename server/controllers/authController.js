@@ -389,3 +389,57 @@ export const getCategoryStats = asyncHandler(async (req, res) => {
         throw new Error('Failed to get category statistics');
     }
 });
+
+
+// @desc    Get public platform statistics
+// @route   GET /api/auth/stats
+// @access  Public
+export const getPlatformStats = asyncHandler(async (req, res) => {
+    try {
+        // Import Order model
+        const Order = (await import('../models/Order.js')).default;
+        
+        // Count active farmers (approved farmers)
+        const activeFarmers = await User.countDocuments({ 
+            role: 'farmer', 
+            approvalStatus: 'approved' 
+        });
+        
+        // Count total buyers
+        const totalBuyers = await User.countDocuments({ 
+            role: 'buyer' 
+        });
+        
+        // Count delivered orders
+        const deliveredOrders = await Order.countDocuments({ 
+            status: 'Delivered' 
+        });
+        
+        // Format numbers for display
+        const formatNumber = (num) => {
+            if (num >= 1000) {
+                return `${(num / 1000).toFixed(1)}k+`;
+            }
+            return `${num}+`;
+        };
+        
+        res.json({
+            activeFarmers: {
+                count: activeFarmers,
+                display: formatNumber(activeFarmers)
+            },
+            happyBuyers: {
+                count: totalBuyers,
+                display: formatNumber(totalBuyers)
+            },
+            ordersDelivered: {
+                count: deliveredOrders,
+                display: formatNumber(deliveredOrders)
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching platform stats:', error);
+        res.status(500);
+        throw new Error('Error fetching statistics');
+    }
+});

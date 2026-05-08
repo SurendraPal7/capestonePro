@@ -28,11 +28,36 @@ const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [imageUploading, setImageUploading] = useState(false);
     const [detectingLocation, setDetectingLocation] = useState(false);
+    const [stats, setStats] = useState({
+        activeFarmers: { count: 0, display: '0+' },
+        happyBuyers: { count: 0, display: '0+' },
+        ordersDelivered: { count: 0, display: '0+' }
+    });
 
     const { register, user } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const { name, email, password, role, phone, address, city, state, zip, farmName, businessName } = formData;
+
+    // Fetch platform statistics
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const { data } = await axios.get('/api/auth/stats');
+                setStats(data);
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                // Keep default values if fetch fails
+            }
+        };
+
+        fetchStats();
+        
+        // Refresh stats every 30 seconds
+        const interval = setInterval(fetchStats, 30000);
+        
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -259,15 +284,15 @@ const Register = () => {
 
                         <div className='info-stats'>
                             <div className='stat-item'>
-                                <h3>500+</h3>
+                                <h3>{stats.activeFarmers.display}</h3>
                                 <p>Active Farmers</p>
                             </div>
                             <div className='stat-item'>
-                                <h3>2000+</h3>
+                                <h3>{stats.happyBuyers.display}</h3>
                                 <p>Happy Buyers</p>
                             </div>
                             <div className='stat-item'>
-                                <h3>10k+</h3>
+                                <h3>{stats.ordersDelivered.display}</h3>
                                 <p>Orders Delivered</p>
                             </div>
                         </div>

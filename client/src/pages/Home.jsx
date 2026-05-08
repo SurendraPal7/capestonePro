@@ -19,6 +19,11 @@ const Home = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [categoryStats, setCategoryStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
+    const [platformStats, setPlatformStats] = useState({
+        activeFarmers: { count: 0, display: '500+' },
+        happyBuyers: { count: 0, display: '10k+' },
+        ordersDelivered: { count: 0, display: '0+' }
+    });
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
 
@@ -27,6 +32,25 @@ const Home = () => {
         filterFarmsByDistance, 
         addDistanceToFarms 
     } = useLocation();
+
+    // Fetch platform statistics
+    useEffect(() => {
+        const fetchPlatformStats = async () => {
+            try {
+                const { data } = await axios.get('/api/auth/stats');
+                setPlatformStats(data);
+            } catch (error) {
+                console.error('Error fetching platform stats:', error);
+            }
+        };
+
+        fetchPlatformStats();
+        
+        // Refresh every 30 seconds
+        const interval = setInterval(fetchPlatformStats, 30000);
+        
+        return () => clearInterval(interval);
+    }, []);
 
     // Redirect farmers to dashboard
     useEffect(() => {
@@ -200,15 +224,15 @@ const Home = () => {
                     </div>
                     <div className='hero-stats'>
                         <div className='stat-item'>
-                            <span className='stat-number'>500+</span>
+                            <span className='stat-number'>{platformStats.activeFarmers.display}</span>
                             <span className='stat-label'>Local Farmers</span>
                         </div>
                         <div className='stat-item'>
-                            <span className='stat-number'>10k+</span>
-                            <span className='stat-label'>Fresh Products</span>
+                            <span className='stat-number'>{platformStats.ordersDelivered.display}</span>
+                            <span className='stat-label'>Orders Delivered</span>
                         </div>
                         <div className='stat-item'>
-                            <span className='stat-number'>25k+</span>
+                            <span className='stat-number'>{platformStats.happyBuyers.display}</span>
                             <span className='stat-label'>Happy Customers</span>
                         </div>
                     </div>
